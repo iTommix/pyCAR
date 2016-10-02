@@ -13,7 +13,7 @@ No use of 3rd-Party like Kodi.
 
 HFP depends on self compiled Pulseaudio (v. 6) and ofono.org.
 
-Tuner-Module Available here:
+Tuner-Module available here:
 
 http://www.ebay.de/itm/191674482268?_trksid=p2057872.m2749.l2649&ssPageName=STRK%3AMEBIDX%3AIT
 
