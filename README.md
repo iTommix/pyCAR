@@ -17,7 +17,7 @@ Tuner-Module available here:
 
 http://www.ebay.de/itm/191674482268?_trksid=p2057872.m2749.l2649&ssPageName=STRK%3AMEBIDX%3AIT
 
-Video available on Youtube (a bit old, new one comes soon):
+Video available on Youtube:
 
 https://www.youtube.com/watch?v=3dzsPGwNwMc
 
