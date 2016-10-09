@@ -15,7 +15,7 @@ No use of 3rd-Party like Kodi. I use a USB Audio Mouse (Hercules Muse Pocket). I
 
 Tuner-Module available here:
 
-http://www.ebay.de/itm/191674482268?_trksid=p2057872.m2749.l2649&ssPageName=STRK%3AMEBIDX%3AIT
+https://www.amazon.de/Breakout-Board-Si4703-FM-Tuner-Radio-Arduino/dp/B017JZCJG6/ref=pd_lutyp_simh_1_1?ie=UTF8&pd_rd_i=B017JZCJG6&pd_rd_r=6K7BAEC6NGHVQZ615T1X&pd_rd_w=NIOTh&pd_rd_wg=EdvnH&psc=1&refRID=6K7BAEC6NGHVQZ615T1X
 
 Video available on Youtube:
 
