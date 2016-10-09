@@ -3,14 +3,15 @@ A Car In-Dash with pure Python3 and qt4 on Raspberry Pi (Jessie). In my case i u
 
 Including:
 
-- Navit Navigation
+- Navit Navigation (Improvements needed)
 - Bluetooth HFP and A2DP functionality (both controlled via pyCAR)
-- Radio FM-Tuner with si4703 Breakout Board
+- Import of Cellphones Phonebook
+- Radio FM-Tuner with si4703 Breakout Board (including RDS)
 - MP3-Player in pure Python3
 - Use of 7" Touchscreen from Raspberry Pi Foundation
-- Bluetooth-Stick (HFP Capabilities)
+- Bluetooth-Dongle (HFP Capabilities)
 
-No use of 3rd-Party like Kodi. I use a Bluetooth Audio Mouse (Hercules Muse Pocket). If you dont need Radio and/or HFP (because of Microfon for HFP and Line-In for Radio) the internal Soundcard should work, too. But there are some configuration needed. I also disabled the internal BT from Raspberry, because it wont work properly. HFP depends on self compiled Pulseaudio (v.6) and ofono.org.
+No use of 3rd-Party like Kodi. I use a USB Audio Mouse (Hercules Muse Pocket). If you dont need Radio and/or HFP (because of Microfon for HFP and Line-In for Radio) the internal Soundcard should work, too. But there are some configuration needed. I also disabled the internal BT from Raspberry, because it wont work properly. HFP depends on self compiled Pulseaudio (v.6) and ofono.org.
 
 Tuner-Module available here:
 
@@ -18,7 +19,7 @@ http://www.ebay.de/itm/191674482268?_trksid=p2057872.m2749.l2649&ssPageName=STRK
 
 Video available on Youtube (a bit old, new one comes soon):
 
-https://www.youtube.com/watch?v=nsZiFj6lNYA
+https://www.youtube.com/watch?v=3dzsPGwNwMc
 
 You need a USB-Stick for Music and other pyCAR dependicies (like Phonebooks and Navit Map). There must be the following structure:
 
