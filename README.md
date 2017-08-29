@@ -3,7 +3,7 @@ A Car In-Dash with pure Python3 and qt4 on Raspberry Pi (Jessie). In my case i u
 
 Including:
 
-- Navit Navigation (Improvements needed)
+- Navit Navigation
 - Bluetooth HFP and A2DP functionality (both controlled via pyCAR)
 - Import of Cellphones Phonebook
 - Radio FM-Tuner with si4703 Breakout Board (including RDS)
