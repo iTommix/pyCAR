@@ -21,7 +21,7 @@ Video available on Youtube:
 
 https://www.youtube.com/watch?v=3dzsPGwNwMc
 
-You need a USB-Stick for Music and other pyCAR dependicies (like Phonebooks and Navit Map). There must be the following structure:
+You need a USB-Stick for Music and other pyCAR dependicies (like Phonebooks and Navit Map). It must be follow this structure:
 
 pyCar/Music/MyMusicAlbum1/MySong1
 
