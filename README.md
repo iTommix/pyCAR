@@ -39,6 +39,24 @@ After install the Base-System, you can choose an Audio-Option:
 2. Google Voice-Hat (experimental)
 3. RPi's Built-In BCM2835
 
+### Prepare USB-Stick for Data and Music
+We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be
+<code>
+└── pyCar
+    ├── Music
+    ├── navit
+    │   ├── D-A-CH.bin
+    │   └── SpeedCamText.txt
+    ├── Phone
+    │   └── Phonebooks
+    │       └── 3C_2E_FF_1D_93_41.db
+    └── Radio
+        └── stations.xml
+</code>
+
+### Disclaimer
+You can use this project as it is. pyCAR is still under development. 
+
 
 [1] https://www.amazon.de/Waveshare-WM8960-Audio-HAT-Raspberry/dp/B07KN8424G
 
