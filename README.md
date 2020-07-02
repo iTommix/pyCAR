@@ -15,8 +15,9 @@ Features:
 - Navit Navigation
 - Bluetooth HFP and A2DP functionality
 - Import of Cellphones Phonebook
-- Radio FM-Tuner with si4703 or Web-Radio
+- Radio FM-Tuner with SI4703 or Web-Radio (Auto-Detect)
 - MP3-Player based on mplayer in pure Python3
+- Module-Based. You can develope own Modules
 
 No use of 3rd-Party like Kodi. I disabled the internal BT from Raspberry, because it wont work properly.
 
@@ -24,6 +25,8 @@ Install:
 
 1. Write a fresh Raspios on a SD-Card
 2. After first boot configure localizations and timezone, reboot.
+3. Clone this repository to your RPi
+4. Change in the downloaded 
 
 
 
