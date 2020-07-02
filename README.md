@@ -1,46 +1,35 @@
 # pyCAR
-A Car In-Dash with pure Python3 and qt4 on Raspberry Pi (Jessie). In my case i use the Raspberry Pi 3. 
+A Car In-Dash with pure Python3, qt4, Pulseaudio, ofono on Raspberry Pi (buster).
 
-Including:
+My Hardware-Configuration:
+- Raspberry Pi 3B+
+- Soundcard WM8960-Audio-HAT [1]
+- Radio Tuner SI4703 [2]
+- 2 x Amplifer MAX9744 (Rear/Front) [3]
+- 7" Touchscreen from Raspberry Pi Foundation [4]
+- Bluetooth-Dongle instead of Built-In BT
+- GPS-Mouse u-blox 6 [5]
+
+Features:
 
 - Navit Navigation
-- Bluetooth HFP and A2DP functionality (both controlled via pyCAR)
+- Bluetooth HFP and A2DP functionality
 - Import of Cellphones Phonebook
-- Radio FM-Tuner with si4703 Breakout Board (including RDS)
-- MP3-Player in pure Python3
-- Use of 7" Touchscreen from Raspberry Pi Foundation
-- Bluetooth-Dongle (HFP Capabilities)
+- Radio FM-Tuner with si4703 or Web-Radio
+- MP3-Player based on mplayer in pure Python3
 
-No use of 3rd-Party like Kodi. I use a USB Audio Mouse (Hercules Muse Pocket). If you dont need Radio and/or HFP (because of Microfon for HFP and Line-In for Radio) the internal Soundcard should work, too. But there are some configuration needed. I also disabled the internal BT from Raspberry, because it wont work properly. HFP depends on self compiled Pulseaudio (v.6) and ofono.org.
+No use of 3rd-Party like Kodi. I disabled the internal BT from Raspberry, because it wont work properly.
 
-Tuner-Module available here:
+Install:
 
-https://www.amazon.de/Breakout-Board-Si4703-FM-Tuner-Radio-Arduino/dp/B017JZCJG6/ref=pd_lutyp_simh_1_1?ie=UTF8&pd_rd_i=B017JZCJG6&pd_rd_r=6K7BAEC6NGHVQZ615T1X&pd_rd_w=NIOTh&pd_rd_wg=EdvnH&psc=1&refRID=6K7BAEC6NGHVQZ615T1X
+1. Write a fresh Raspios on a SD-Card
+2. After first boot configure localizations and timezone, reboot.
 
-Video available on Youtube:
 
-https://www.youtube.com/watch?v=3dzsPGwNwMc
 
-You need a USB-Stick for Music and other pyCAR dependicies (like Phonebooks and Navit Map). It must be follow this structure:
 
-pyCar/Music/MyMusicAlbum1/MySong1
-
-pyCar/Music/MyMusicAlbum1/MySong2
-
-pyCar/Music/MyMusicAlbum1/...
-
-pyCar/Music/MyMusicAlbum2/MySong1
-
-pyCar/Music/MyMusicAlbum2/MySong2
-
-pyCar/Music/MyMusicAlbum2/...
-
-pyCar/Music/...
-
-pyCar/navit/map.bin (This is a Map from OSM)
-
-pyCar/Phone/Phonebooks (Here will be the Phonebooks Databases saved)
-
-        
-After plugged in the Stick he will be available under /media/pi/pyCar/...
-
+[1] https://www.amazon.de/Waveshare-WM8960-Audio-HAT-Raspberry/dp/B07KN8424G
+[2] https://www.amazon.de/Breakout-Board-Si4703-Tuner-Funkmodul/dp/B017JZCJG6
+[3] https://www.reichelt.de/entwicklerboards-audioverstaerker-stereo-20-w-klasse-d-max9-debo-sound-amp3-p235512.html?PROVID=2788&&r=1
+[4] https://www.amazon.de/Raspberry-Pi-7-Inch-Screen-Display/dp/B014WKCFR4
+[5] https://www.reichelt.de/gps-galileo-empfaenger-u-blox-6-navilock-61840-p135559.html
