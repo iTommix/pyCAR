@@ -26,10 +26,9 @@ No use of 3rd-Party like Kodi. I disabled the internal BT from Raspberry, becaus
 1. Write a fresh Raspios on a SD-Card
 2. After first boot configure localizations and timezone, reboot.
 3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
-4. Rename the repository <code>mv pyCAR install</code>
-5. Change to the folder <code>cd install</code>
-6. Execute the Installscript <code>./install.sh</code>
-7. At first select 'Install Base-System'
+4. Change to the install folder <code>cd pyCAR/install</code>
+5. Execute the Installscript <code>./install.sh</code>
+6. At first select 'Install Base-System'
 
 The Scripts will uninstall not needed programs, update the System and install needed programs as well. You will be forced to reboot the Pi several times. Please follow the instructions from the Installscript.
 
@@ -42,7 +41,7 @@ After install the Base-System, you can choose an Audio-Option:
 ### Prepare USB-Stick for Data and Music
 We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be:
 
-![USB-Stick](/screenshots/folders.png?raw=true "The Structure of the USB-Stick")
+![USB-Stick](/install/screenshots/folders.png?raw=true "The Structure of the USB-Stick")
 
 As you can see, the Stick is named pyCar and got the folders 'Music', 'navit', 'phone' and 'Radio'. The file stations.xml is only for Webradio. In the folder Music put your mp3-Files. Each album as a own folder. In the folder 'navit' will be the map (e.g. from OpenStreetMap) as .bin-File and an optional SpeedCam.txt ;-)
 

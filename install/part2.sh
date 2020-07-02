@@ -3,7 +3,6 @@ clear
 echo "***************************************"
 echo "** Install needed Packages           **"
 echo "***************************************"
-#sudo apt-get -y build-dep navit
 sudo dpkg -i pulseaudio_13.99.1-45-g0547a.deb
 sudo dpkg -i navit_0.5.4.deb
 sudo dpkg -i mbrola_3.4.0.deb
@@ -34,37 +33,6 @@ sudo apt-get -y install zip
 echo "***************************************"
 echo "** Finished. Hit [Enter]             **"
 echo "***************************************"
-read ok
-clear
-echo "***************************************"
-echo "** Build navit from the scratch      **"
-echo "***************************************"
-#git clone https://github.com/navit-gps/navit.git ./navit-source
-if [ -d "./navit-source" ]; then
-    mkdir ./navit-build
-    cd ./navit-build
-    cmake --enable-map-csv ~/install/navit-source -DFREETYPE_INCLUDE_DIRS=/usr/include/freetype2/
-    #make -j$(nproc)
-    make
-    sudo cp navit/navit /usr/bin/
-    sudo chmod +x /usr/bin/navit
-    sudo mkdir /usr/local/share/navit
-    cd navit
-    sudo find . -name "*.so" -type f -exec cp {} /usr/local/share/navit/ \;
-    sudo cp -R icons/ /usr/local/share/navit/
-    cd /home/pi/install/
-    unzip nav.zip
-    sudo cp -R nav/buttons /usr/local/share/navit/
-    sudo cp nav/navit.xml /usr/local/share/navit/
-    echo "***************************************"
-    echo "** Finished. Hit [Enter]             **"
-    echo "***************************************"
-else
-    clear
-    echo "*************************************"
-    echo "** Could not download Navit source **"
-    echo "*************************************"
-fi
 read ok
 clear
 echo "***************************************"
@@ -106,15 +74,11 @@ cd nOBEX
 sudo python3 setup.py install
 cd ..
 mv ./part2.sh ./part2.bak
-unzip ./pyCAR.zip -d /home/pi/
 echo "****************************************************************************************************"
 echo "** Finished. We should now reboot the System. After Reboot start the installscript again.         **"
 echo "** You can then choose an Audio-Option [ENTER]                                                    **"
 echo "****************************************************************************************************"
 read ok
 sudo rm -R etc
-sudo rm -R nav
-sudo rm -R navit-build
-sudo rm -R navit-source
 sudo rm -R nOBEX
 sudo reboot
