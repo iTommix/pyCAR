@@ -10,7 +10,7 @@
 - Bluetooth-Dongle instead of Built-In BT
 - GPS-Mouse u-blox 6 [5]
 
-Features:
+### Features:
 
 - Navit Navigation
 - Bluetooth HFP and A2DP functionality
@@ -21,7 +21,7 @@ Features:
 
 No use of 3rd-Party like Kodi. I disabled the internal BT from Raspberry, because it wont work properly.
 
-Install:
+### Install:
 
 1. Write a fresh Raspios on a SD-Card
 2. After first boot configure localizations and timezone, reboot.
