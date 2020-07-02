@@ -26,9 +26,18 @@ Install:
 1. Write a fresh Raspios on a SD-Card
 2. After first boot configure localizations and timezone, reboot.
 3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
-4. Change in the downloaded 
+4. Rename the Repository <code>mv pyCAR install</code>
+5. Change to the folder <code>cd install</code>
+6. Execute the Installscript <code>./install.sh</code>
+7. At first select 'Install Base-System'
 
+The Scripts will uninstall not needed programs, update the System and install needed programs as well. You will be forced to reboot the Pi several times. Please follow the instructions from the Installscript.
 
+After install the Base-System, you can choose an Audio-Option:
+
+1. WM8960-Audio-HAT
+2. Google Voice-Hat (experimental)
+3. RPi's Built-In BCM2835
 
 
 [1] https://www.amazon.de/Waveshare-WM8960-Audio-HAT-Raspberry/dp/B07KN8424G
