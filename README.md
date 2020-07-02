@@ -44,6 +44,8 @@ We will use a USB-Stick to hold the Music and some Data to prevent excessive wri
 
 ![USB-Stick](/folders.png?raw=true "The Structure of the USB-Stick")
 
+As you can see, the Stick is named pyCar and got the folders 'Music', 'navit', 'phone' and 'Radio'. The file stations.xml is only for Webradio. In the folder Music put your mp3-Files. Each album as a own folder. In the folder 'navit' will be the map (e.g. from OpenStreetMap) as .bin-File and an optional SpeedCam.txt ;-)
+
 ### Disclaimer
 You can use this project as it is. pyCAR is still under development. 
 
