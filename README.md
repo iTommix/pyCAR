@@ -25,7 +25,7 @@ Install:
 
 1. Write a fresh Raspios on a SD-Card
 2. After first boot configure localizations and timezone, reboot.
-3. Clone this repository to your RPi
+3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
 4. Change in the downloaded 
 
 
