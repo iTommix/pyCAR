@@ -43,14 +43,23 @@ After install the Base-System, you can choose an Audio-Option:
 We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be
 <code>
 └── pyCar
+    
     ├── Music
+    
     ├── navit
+    
     │   ├── D-A-CH.bin
+    
     │   └── SpeedCamText.txt
+    
     ├── Phone
+    
     │   └── Phonebooks
+    
     │       └── 3C_2E_FF_1D_93_41.db
+    
     └── Radio
+    
         └── stations.xml
 </code>
 
