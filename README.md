@@ -42,7 +42,7 @@ After install the Base-System, you can choose an Audio-Option:
 ### Prepare USB-Stick for Data and Music
 We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be:
 
-![USB-Stick](/folders.png?raw=true "The Structure of the USB-Stick")
+![USB-Stick](/screenshots/folders.png?raw=true "The Structure of the USB-Stick")
 
 As you can see, the Stick is named pyCar and got the folders 'Music', 'navit', 'phone' and 'Radio'. The file stations.xml is only for Webradio. In the folder Music put your mp3-Files. Each album as a own folder. In the folder 'navit' will be the map (e.g. from OpenStreetMap) as .bin-File and an optional SpeedCam.txt ;-)
 
