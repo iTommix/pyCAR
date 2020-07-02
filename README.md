@@ -1,7 +1,7 @@
 # pyCAR
 ## A Car In-Dash with pure Python3, qt4, Pulseaudio, ofono on Raspberry Pi (buster).
 
-My Hardware-Configuration:
+### My Hardware-Configuration:
 - Raspberry Pi 3B+
 - Soundcard WM8960-Audio-HAT [1]
 - Radio Tuner SI4703 [2]
