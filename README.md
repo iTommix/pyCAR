@@ -29,7 +29,11 @@ Install:
 
 
 [1] https://www.amazon.de/Waveshare-WM8960-Audio-HAT-Raspberry/dp/B07KN8424G
+
 [2] https://www.amazon.de/Breakout-Board-Si4703-Tuner-Funkmodul/dp/B017JZCJG6
+
 [3] https://www.reichelt.de/entwicklerboards-audioverstaerker-stereo-20-w-klasse-d-max9-debo-sound-amp3-p235512.html?PROVID=2788&&r=1
+
 [4] https://www.amazon.de/Raspberry-Pi-7-Inch-Screen-Display/dp/B014WKCFR4
+
 [5] https://www.reichelt.de/gps-galileo-empfaenger-u-blox-6-navilock-61840-p135559.html
