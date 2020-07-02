@@ -42,16 +42,7 @@ After install the Base-System, you can choose an Audio-Option:
 ### Prepare USB-Stick for Data and Music
 We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be:
 
-└── pyCar<br>
-    ├── Music<br>   
-    ├── navit<br>
-    │   ├── D-A-CH.bin<br />
-    │   └── SpeedCamText.txt<br />
-    ├── Phone<br />
-    │   └── Phonebooks<br />
-    │       └── 3C_2E_FF_1D_93_41.db<br />
-    └── Radio<br />
-        └── stations.xml<br />
+![USB-Stick](/folders.png?raw=true "The Structure of the USB-Stick")
 
 ### Disclaimer
 You can use this project as it is. pyCAR is still under development. 
