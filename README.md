@@ -26,7 +26,7 @@ No use of 3rd-Party like Kodi. I disabled the internal BT from Raspberry, becaus
 1. Write a fresh Raspios on a SD-Card
 2. After first boot configure localizations and timezone, reboot.
 3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
-4. Rename the Repository <code>mv pyCAR install</code>
+4. Rename the repository <code>mv pyCAR install</code>
 5. Change to the folder <code>cd install</code>
 6. Execute the Installscript <code>./install.sh</code>
 7. At first select 'Install Base-System'
