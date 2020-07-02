@@ -43,8 +43,8 @@ After install the Base-System, you can choose an Audio-Option:
 We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be:
 
 <code>
-└── pyCar  
-    ├── Music   
+└── pyCar\
+    ├── Music\   
     ├── navit  
     │   ├── D-A-CH.bin<br />
     │   └── SpeedCamText.txt<br />
