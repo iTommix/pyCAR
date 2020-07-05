@@ -10,6 +10,7 @@ from PIL import Image
 from PIL import ImageFilter
 from subprocess import call
 import system.label as label
+import system.stackedWidget as stack
 
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
 form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
@@ -24,6 +25,18 @@ class mp3(QtGui.QMainWindow, form_class):
         QtGui.QWidget.__init__(self, parent)
         self.parent=parent
         self.setupUi(self)
+        
+        self.stack = stack.StackedWidget()
+        self.stack.setStyleSheet("border: 0px; background-color: ff0000")
+        self.stack.addWidget(self.page1)
+        self.stack.addWidget(self.page2)
+        self.stack.addWidget(self.page3) 
+        hbox = QtGui.QHBoxLayout(self.frame)
+        hbox.setContentsMargins(0, 0, 0, 0)
+        hbox.addWidget(self.stack)
+        self.frame.setLayout(hbox)
+        
+        
         self.settings=settings
         self.mp3player = mplayer.Player()
         # setup timers
@@ -46,9 +59,9 @@ class mp3(QtGui.QMainWindow, form_class):
         self.btn_Shuffle.clicked.connect(lambda: self.setShuffle())
         self.btn_Shuffle_list.clicked.connect(lambda: self.setShuffle())
         
-        self.btn_Select.clicked.connect(lambda: self.parent.startSlide("left", self.frame))
-        self.btn_Back.clicked.connect(lambda: self.parent.startSlide("right", self.frame))
-        self.slideback.clicked.connect(lambda: self.parent.startSlide("right", self.frame))
+        self.btn_Select.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        self.btn_Back.clicked.connect(lambda: self.stack.setCurrentIndex(0))
+        self.slideback.clicked.connect(lambda: self.stack.setCurrentIndex(1))
         
         self.albumList.itemClicked.connect(lambda: self.getSongs())
         self.musicList.itemClicked.connect(lambda: self.selectAlbum())
@@ -336,7 +349,7 @@ class mp3(QtGui.QMainWindow, form_class):
             self.musicList.addItem(itm);
         if album == self.settings["album"]:
             self.musicList.setCurrentRow(self.settings["song"])
-        self.parent.startSlide("left", self.frame)
+        self.stack.setCurrentIndex(2)
 
     #################################
     # Get all Albums in path        #

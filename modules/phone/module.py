@@ -1,7 +1,7 @@
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QIcon
 import sys, os, json, time, dbus, sqlite3
-#import modules.phone as phone, modules.functions as functions
+import system.stackedWidget as stack
 
 
 
@@ -16,7 +16,17 @@ class phone(QtGui.QMainWindow, form_class):
         self.settings=settings
         self.setupUi(self)
         
-        self.setGeometry(QtCore.QRect(0, 0, 700, 480))
+        self.stack = stack.StackedWidget()
+        self.stack.addWidget(self.page1)
+        self.stack.addWidget(self.page2)
+        self.stack.addWidget(self.page3) 
+        hbox = QtGui.QHBoxLayout(self.frame)
+        hbox.setContentsMargins(0, 0, 0, 0)
+        hbox.addWidget(self.stack)
+        self.frame.setLayout(hbox)
+        
+        
+        #self.setGeometry(QtCore.QRect(0, 0, 700, 480))
         
         self.call=0
         self.callPath=None
@@ -42,9 +52,9 @@ class phone(QtGui.QMainWindow, form_class):
         
         self.phonebookList.itemClicked.connect(self.PhoneNumbers)
         self.tblPhoneNumbers.itemClicked.connect(self.phoneNumberSelected)
-        self.btnPhonebook.clicked.connect(lambda: self.parent.startSlide("left", self.frame))
-        self.btnBackPhone.clicked.connect(lambda: self.parent.startSlide("right", self.frame))
-        self.slideback2.clicked.connect(lambda: self.parent.startSlide("right", self.frame))
+        self.btnPhonebook.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        self.btnBackPhone.clicked.connect(lambda: self.stack.setCurrentIndex(0))
+        self.slideback2.clicked.connect(lambda: self.stack.setCurrentIndex(1))
         
         self.btnCallAnswer.clicked.connect(lambda: self.answerRejectCall('answer'))
         self.btnCallReject.clicked.connect(lambda: self.answerRejectCall('reject'))
@@ -231,7 +241,7 @@ class phone(QtGui.QMainWindow, form_class):
             c+=1
         #self.tblPhoneNumbers.resizeColumnsToContents()
         self.lblPhoneName.setText(self.phonebookList.currentItem().text())      
-        self.parent.startSlide("left", self.frame)
+        self.stack.setCurrentIndex(2)
 
         
         

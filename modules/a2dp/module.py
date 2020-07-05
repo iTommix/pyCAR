@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QIcon
 import sys, os, json, time, dbus
 from xml.dom import minidom
-
+import system.stackedWidget as stack
 
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
 form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
@@ -16,9 +16,17 @@ class a2dp(QtGui.QMainWindow, form_class):
         self.path = self.settings["a2dpPath"]
         self.setupUi(self)
         
+        self.stack = stack.StackedWidget()
+        self.stack.addWidget(self.page1)
+        self.stack.addWidget(self.page2)        
+        hbox = QtGui.QHBoxLayout(self.frame)
+        hbox.setContentsMargins(0, 0, 0, 0)
+        hbox.addWidget(self.stack)
+        self.frame.setLayout(hbox)
+        
         self.musicSlider.setEnabled(False)
         self.btn_Select.clicked.connect(lambda: self.showBrowser())
-        self.slideback.clicked.connect(lambda: self.parent.startSlide("right", self.frame))
+        self.slideback.clicked.connect(lambda: self.stack.setCurrentIndex(0))
         self.musicList.itemClicked.connect(self.select)
         self.musicList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}")
         self.btn_Repeat.clicked.connect(lambda: self.setProperties("repeat"))
@@ -68,7 +76,8 @@ class a2dp(QtGui.QMainWindow, form_class):
 
     def showBrowser(self):
         self.browser()
-        self.parent.startSlide("left", self.frame)
+        #self.parent.startSlide("left", self.frame)
+        self.stack.setCurrentIndex(1)
     
     def function(self, function):
         device=self.parent.mobile.getConnectedDevice()
