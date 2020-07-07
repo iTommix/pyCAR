@@ -1,30 +1,39 @@
+---
+typora-root-url: ../pyCAR
+---
+
 # pyCAR
-## A Car In-Dash with pure Python3, qt4, Pulseaudio, ofono on Raspberry Pi (buster).
+### A Car In-Dash with pure Python3, qt4, Pulseaudio, ofono on Raspberry Pi.
+
+![Splash-Screen](/install/splash.png)
 
 ### My Hardware-Configuration:
-- Raspberry Pi 3B+
+
+- Raspberry Pi 3B+, Raspios buster
 - Soundcard WM8960-Audio-HAT [1]
-- Radio Tuner SI4703 [2]
-- 2 x Amplifer MAX9744 (Rear/Front) [3]
+- Radio Tuner SI4703 (I2C-Controlled) [2]
+- 2 x Amplifer MAX9744 (Rear/Front, I2C-Controlled) [3]
 - 7" Touchscreen from Raspberry Pi Foundation [4]
 - Bluetooth-Dongle instead of Built-In BT
 - GPS-Mouse u-blox 6 [5]
 
 ### Features:
 
-- Navit Navigation
+- Navit Turn-By-Turn Navigation
 - Bluetooth HFP and A2DP functionality
 - Import of Cellphones Phonebook
 - Radio FM-Tuner with SI4703 or Web-Radio (Auto-Detect)
 - MP3-Player based on mplayer in pure Python3
 - Module-Based. You can develope own Modules
 
-No use of 3rd-Party like Kodi. I disabled the internal BT from Raspberry, because it wont work properly.
+No use of 3rd-Party like Kodi. 
+
+I disabled the internal BT from Raspberry, because it wont work properly.
 
 ### Install:
 
-1. Write a fresh Raspios on a SD-Card
-2. After first boot configure localizations and timezone, reboot.
+1. Write a fresh Raspios on a SD-Card (2020-05-27-raspios-buster-armhf.img)
+2. After first boot configure localizations and timezone with raspi-config, reboot.
 3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
 4. Change to the install folder <code>cd pyCAR/install</code>
 5. Execute the Installscript <code>./install.sh</code>
@@ -36,7 +45,7 @@ After install the Base-System, you can choose an Audio-Option:
 
 1. WM8960-Audio-HAT
 2. Google Voice-Hat (experimental)
-3. RPi's Built-In BCM2835
+3. RPi's Built-In BCM2835 (nothing will be changed)
 
 ### Prepare USB-Stick for Data and Music
 We will use a USB-Stick to hold the Music and some Data to prevent excessive writing on the SD-Card. The structure should be:
