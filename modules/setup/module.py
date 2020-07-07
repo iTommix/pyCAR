@@ -33,12 +33,13 @@ class setup(QtGui.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
-        self.settings=settings
-        self.setupUi(self)
         self.selectedCard = None
         self.selectedProfile = 0
         
+        
+        
+        
+    def loaded(self):
         self.btnReboot.clicked.connect(lambda: self.reboot())
         self.btnShutdown.clicked.connect(lambda: self.shutdown())
         self.btnQuit.clicked.connect(lambda: self.quit())
@@ -64,8 +65,7 @@ class setup(QtGui.QMainWindow, form_class):
         
         # Modules
         dom = minidom.parse('./system/config.xml')
-        modules = parent.sortModules(dom.getElementsByTagName('module'))
-        print(modules[1])
+        modules = self.parent.sortModules(dom.getElementsByTagName('module'))
         self.tableModel = tableModel(self)
         self.tableModel.header = ['Enabled', 'Name', 'Label']
         self.tableModel.modules = modules
@@ -74,17 +74,10 @@ class setup(QtGui.QMainWindow, form_class):
             item.setCheckable(True)
             if module.attributes["enabled"].value == "1":
                 item.setCheckState(2)
-            
-            
-            #icon = QtGui.QIcon(r""+mPath[0]+"/modules/"+module.attributes["name"].value+"/button.png")
             name = QtGui.QStandardItem(module.attributes["name"].value)
             label = QtGui.QStandardItem(module.attributes["label"].value)
-            
             self.tableModel.appendRow([item, name, label])
         self.modules.setModel(self.tableModel)
-        
-        
-
         
     def mute(self):
         pass

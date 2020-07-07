@@ -204,7 +204,12 @@ class pyCAR(QtGui.QMainWindow, form_class):
                     # Import the Modules            
                     mod=importlib.import_module("modules."+module.attributes["name"].value+".module")
                     instance=getattr(mod, module.attributes["name"].value)(self, settings)
-                    
+                    instance.parent = self
+                    instance.settings = settings
+                    try:
+                        uic.loadUi("./modules/"+module.attributes["name"].value+"/gui.ui", instance)
+                    except:
+                        pass
                     pages = int(module.attributes["pages"].value)
                     stack = QTWidgets().StackedWidget()
                     stack.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/skin.png); border: 0px;")
@@ -240,6 +245,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
                     label.setAlignment(QtCore.Qt.AlignCenter)
                     label.setFont(font)
                     label.setText(module.attributes["label"].value)
+                    instance.loaded()
                     count=count+1
                     if x>2:
                         x=0
@@ -254,7 +260,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
                     self.fakeModules[module.attributes["name"].value]["pages"] = module.attributes["pages"].value
                     self.fakeModules[module.attributes["name"].value]["settings"]=settings
         vol = dom.getElementsByTagName('volume')[0]
-        volume.init(json.loads(vol.firstChild.data), self.modules["setup"]["instance"].settings["mixer"])
+        #volume.init(json.loads(vol.firstChild.data), self.modules["setup"]["instance"].settings["mixer"])
 
         
     def sortModules(self, modules):

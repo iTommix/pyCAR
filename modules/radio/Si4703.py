@@ -10,11 +10,12 @@ class radio(QtGui.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
         self.setupUi(self)
-        self.settings=settings
         self.control=control(self)
         self.focused=False
+        
+        
+    def loaded(self):
         # setup buttons
         for number in range(1,6):
             button = getattr(self, "btn_Station"+str(number))
@@ -23,7 +24,6 @@ class radio(QtGui.QMainWindow, form_class):
         self.btn_Seekdown.clicked.connect(lambda: self.control.seekDown())
         self.btn_Tuneup.clicked.connect(lambda: self.control.tuneUp())
         self.btn_Tunedown.clicked.connect(lambda: self.control.tuneDown())
-        
 
     def focus(self):
         self.focused=True

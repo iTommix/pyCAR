@@ -8,6 +8,7 @@
        <module name="phone" label="Telefon" enabled="1" order="4" pages="4">{"volume": 30}</module>
        <module name="setup" label="Einstellungen" enabled="1" order="6" pages="1">{"bt_auto": 1, "bt_device": "3C:2E:FF:1D:93:41", "profile": "Stereo-Ausgabe + Stereo-Eingabe", "mixer": "Headphone", "card": "wm8960-soundcard", "bt_name": "iPhone X"}</module>
        <module name="navit" label="Navigation" enabled="1" order="5" pages="1">{"volume": 50}</module>
+       <module name="example" label="Example" enabled="1" order="7" pages="2">{}</module>
   </modules>
   <volume>{"mute":0,"balance":0,"volume":30}</volume>
 </pyCAR>

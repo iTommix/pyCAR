@@ -19,19 +19,13 @@ class mp3(QtGui.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
-        uic.loadUi(path[0]+"/"+path[1]+"/gui.ui", self)
-        self.parent=parent
-        self.settings=settings
         self.mp3player = mplayer.Player()
-        # setup timers
-        self.playTimer = QtCore.QTimer()
-        self.playTimer.timeout.connect(lambda: self.setSlider())
+
+        
+
+    def loaded(self):
         # setup buttons
         """
-        
-        
-        
-        
         self.btn_Interprets.clicked.connect(lambda: self.selectList("interprets"))
         self.btn_Album.clicked.connect(lambda: self.selectList("alben"))
         self.musicSlider.sliderReleased.connect(self.setPosition)

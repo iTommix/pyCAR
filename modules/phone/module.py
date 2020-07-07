@@ -11,15 +11,16 @@ class phone(QtGui.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
-        self.settings=settings
-        self.setupUi(self)
-        
+       
         self.call=0
         self.callPath=None
         self.path=None
         self.phoneBookLoaded=False
         
+        
+    def loaded(self):
+        self.parent.schedule.every().second.do(self.detectIncomingCall).tag('detectIncomingCall')
+        self.Phonebook()
         self.phonebookList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         self.tblPhoneNumbers.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         
@@ -45,14 +46,6 @@ class phone(QtGui.QMainWindow, form_class):
         
         self.btnCallAnswer.clicked.connect(lambda: self.answerRejectCall('answer'))
         self.btnCallReject.clicked.connect(lambda: self.answerRejectCall('reject'))
-        
-        self.parent.schedule.every().second.do(self.detectIncomingCall).tag('detectIncomingCall')
-        """
-        self.detectCall = QtCore.QTimer()
-        self.detectCall.timeout.connect(self.detectIncomingCall)
-        self.detectCall.start(1000)
-        """
-        self.Phonebook()
     
     def focus(self):
         pass

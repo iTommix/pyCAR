@@ -13,14 +13,13 @@ class radio(QtGui.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
         self.stations={}
-        self.setupUi(self)
+        self.setupUi(self)    
+        
+        
+    def loaded():
         self.stationList.itemClicked.connect(lambda: self.setChannel(self.stationList.currentRow()))
-        self.settings=settings
         self.readChannels()
-        
-        
         
     def focus(self):
         pass

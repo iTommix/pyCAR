@@ -10,11 +10,11 @@ class a2dp(QtGui.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
-        self.settings=settings
-        self.path = self.settings["a2dpPath"]
-        self.setupUi(self)
         
+        
+        
+    def loaded(self):
+        self.path = self.settings["a2dpPath"]
         self.musicSlider.setEnabled(False)
         self.btn_Select.clicked.connect(lambda: self.showBrowser())
         self.slideback.clicked.connect(lambda: self.stack.setCurrentIndex(0))
