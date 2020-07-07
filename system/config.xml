@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <pyCAR>
   <modules>
-       <module name="setup" label="Einstellungen" enabled="1" order="6">{"bt_auto": 1, "bt_device": "3C:2E:FF:1D:93:41", "profile": "Stereo-Ausgabe + Stereo-Eingabe", "mixer": "Headphone", "card": "wm8960-soundcard", "bt_name": "iPhone X"}</module>
-       <module name="radio" label="Radio" enabled="1" order="2">{"volume": 65, "Si4703": {"stations": {"4": "103.2", "2": "90.3", "5": "", "3": "100.5", "1": "103.6"}, "pause": 1, "currentStation": "103.6"}, "internet": {"path": "/media/pi/pyCar/Radio", "currentStation": 4}}</module>
-       <module name="playing" label="Jetzt läuft" enabled="1" order="0">{}</module>
-       <module name="phone" label="Telefon" enabled="1" order="4">{"volume": 30}</module>
-       <module name="mp3" label="Musik" enabled="1" order="1">{"shuffle": 0, "volume": 41, "album": "A State Of Trance 2012 (Mixed Version)", "position": 134, "path": "/media/pi/pyCar/Music", "shuffleList": [], "song": 8, "repeat": 0}</module>
-       <module name="a2dp" label="Bluetooth Audio" enabled="1" order="3">{"volume": 39, "shuffle": 0, "pause": 0, "repeat": 0, "a2dpPath": "/Filesystem"}</module>
-       <module name="navit" label="Navigation" enabled="1" order="5">{"volume": 50}</module>
+       <module name="playing" label="Jetzt läuft" enabled="1" order="0" pages="0">{}</module>
+       <module name="mp3" label="Musik" enabled="1" order="1" pages="3">{"shuffle": 0, "volume": 34, "album": "ASOT Special Miami 26.03.2017", "position": 2922, "path": "/media/pi/pyCar/Music", "shuffleList": [], "song": 3, "repeat": 0}</module>
+       <module name="radio" label="Radio" enabled="1" order="2" pages="1">{"volume": 65, "Si4703": {"stations": {"4": "103.2", "2": "90.3", "5": "", "3": "100.5", "1": "103.6"}, "pause": 1, "currentStation": "103.6"}, "internet": {"path": "/media/pi/pyCar/Radio", "currentStation": 4}}</module>
+       <module name="a2dp" label="Bluetooth Audio" enabled="1" order="3" pages="2">{"volume": 35, "shuffle": 0, "pause": 0, "repeat": 0, "a2dpPath": "/Filesystem"}</module>
+       <module name="phone" label="Telefon" enabled="1" order="4" pages="4">{"volume": 30}</module>
+       <module name="setup" label="Einstellungen" enabled="1" order="6" pages="1">{"bt_auto": 1, "bt_device": "3C:2E:FF:1D:93:41", "profile": "Stereo-Ausgabe + Stereo-Eingabe", "mixer": "Headphone", "card": "wm8960-soundcard", "bt_name": "iPhone X"}</module>
+       <module name="navit" label="Navigation" enabled="1" order="5" pages="1">{"volume": 50}</module>
   </modules>
   <volume>{"mute":0,"balance":0,"volume":30}</volume>
 </pyCAR>

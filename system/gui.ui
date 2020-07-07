@@ -29,7 +29,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QStackedWidget" name="mainFrame">
+    <widget class="StackedWidget" name="mainFrame">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -45,7 +45,7 @@
       <property name="styleSheet">
        <string notr="true">background-image: url(./skins/main.png)</string>
       </property>
-      <widget class="QLabel" name="lbl_Artist">
+      <widget class="QTLabel" name="lbl_Artist">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -189,7 +189,7 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lbl_Title">
+      <widget class="QTLabel" name="lbl_Title">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -554,6 +554,18 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QTLabel</class>
+   <extends>QLabel</extends>
+   <header>QTWidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>StackedWidget</class>
+   <extends>QStackedWidget</extends>
+   <header>QTWidgets</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

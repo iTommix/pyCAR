@@ -7,7 +7,9 @@ from functools import partial
 from subprocess import call
 from system.bluez import mobile
 import system.volume as volume
+from system.QTWidgets import *
 
+sys.modules["QTWidgets"]=QTWidgets
 path=os.path.dirname(os.path.abspath( __file__ ))
 form_class = uic.loadUiType("./system/gui.ui")[0]
 
@@ -70,8 +72,8 @@ class pyCAR(QtGui.QMainWindow, form_class):
     def switchModule(self, deck):
         self.mainFrame.setCurrentIndex(deck)
         for module in self.modules:
-            w=self.modules[module]["instance"].frame.geometry().width()
-            self.modules[module]["instance"].frame.setGeometry(QtCore.QRect(0, 0, w, 480))
+            if self.modules[module]["instance"] != self and self.modules[module]["instance"].stack.currentIndex() > 0:
+                self.modules[module]["instance"].stack.setCurrentIndex(0)
             if deck==self.modules[module]["deck"]:
                 self.active = module
                 if hasattr(self.modules[module]["instance"], 'focus'):
@@ -82,7 +84,6 @@ class pyCAR(QtGui.QMainWindow, form_class):
                         self.modules[self.player]["instance"].stop()
                         time.sleep(0.3)
                     self.player = module
-                    print("Player changed to ", self.player, " Set Volume to ", self.modules[self.player]["instance"].settings["volume"])
                     self.volume.setVolume(self.modules[self.player]["instance"].settings["volume"])
                     self.modules[module]["instance"].play()
                 
@@ -193,52 +194,68 @@ class pyCAR(QtGui.QMainWindow, form_class):
         # Collect all Modules
         modules = dom.getElementsByTagName('module')
         for module in self.sortModules(modules):
-            settings={}
-            try:
-                settings=json.loads(module.firstChild.data)
-            except:
-                pass
-            if module.attributes["enabled"].value == "1":
-                # Import the Modules            
-                mod=importlib.import_module("modules."+module.attributes["name"].value+".module")
-                
-                instance=getattr(mod, module.attributes["name"].value)(self, settings)
-                self.modules[module.attributes["name"].value]={}
-                self.modules[module.attributes["name"].value]["deck"]=count
-                self.modules[module.attributes["name"].value]["instance"]=instance
-                self.modules[module.attributes["name"].value]["name"] = module.attributes["label"].value
-                self.modules[module.attributes["name"].value]["order"] = module.attributes["order"].value
-                #self.modules[count-1]=module.attributes["name"].value
-                instance.frame.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/skin.png); border: 0px;")
-                self.mainFrame.addWidget(instance)
-    
-                # Add Button to Homescreen
-                button = QtGui.QToolButton(self.home)
-                button.setObjectName(module.attributes["name"].value)
-                button.setGeometry(QtCore.QRect(65+(x*164), y, 80, 80))
-                button.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/button.png);background-repeat: none; border-radius: 10px; border: 0px;background-position: center")
-                button.clicked.connect(partial(getattr(self, 'switchModule'), count))
+            if module != None:
+                settings={}
+                try:
+                    settings=json.loads(module.firstChild.data)
+                except:
+                    pass
+                if module.attributes["enabled"].value == "1":
+                    # Import the Modules            
+                    mod=importlib.import_module("modules."+module.attributes["name"].value+".module")
+                    instance=getattr(mod, module.attributes["name"].value)(self, settings)
                     
-                # Add Label
-                label=QtGui.QLabel(self.home)
-                label.setGeometry(QtCore.QRect(35+(x*164), y+90, 140, 20))
-                label.setStyleSheet("color: #ffffff;")
-                label.setAlignment(QtCore.Qt.AlignCenter)
-                label.setFont(font)
-                label.setText(module.attributes["label"].value)
-                count=count+1
-                if x>2:
-                    x=0
-                    y=y+170
+                    pages = int(module.attributes["pages"].value)
+                    stack = QTWidgets().StackedWidget()
+                    stack.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/skin.png); border: 0px;")
+                    for page in range(1, pages+1):
+                        stack.addWidget(getattr(instance, "page"+str(page)))
+                    instance.stack = stack
+                    layout = QtGui.QHBoxLayout()
+                    layout.setContentsMargins(0, 0, 0, 0)
+                    layout.addWidget(stack)
+                    instance.centralwidget.setLayout(layout)
+
+                    self.modules[module.attributes["name"].value]={}
+                    self.modules[module.attributes["name"].value]["deck"]=count
+                    self.modules[module.attributes["name"].value]["instance"]=instance
+                    self.modules[module.attributes["name"].value]["name"] = module.attributes["label"].value
+                    self.modules[module.attributes["name"].value]["order"] = module.attributes["order"].value
+                    self.modules[module.attributes["name"].value]["pages"] = module.attributes["pages"].value
+                    #self.modules[count-1]=module.attributes["name"].value
+                    #instance.frame.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/skin.png); border: 0px;")
+                    self.mainFrame.addWidget(instance)
+        
+                    # Add Button to Homescreen
+                    button = QtGui.QToolButton(self.home)
+                    button.setObjectName(module.attributes["name"].value)
+                    button.setGeometry(QtCore.QRect(65+(x*164), y, 80, 80))
+                    button.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/button.png);background-repeat: none; border-radius: 10px; border: 0px;background-position: center")
+                    button.clicked.connect(partial(getattr(self, 'switchModule'), count))
+                        
+                    # Add Label
+                    label=QtGui.QLabel(self.home)
+                    label.setGeometry(QtCore.QRect(35+(x*164), y+90, 140, 20))
+                    label.setStyleSheet("color: #ffffff;")
+                    label.setAlignment(QtCore.Qt.AlignCenter)
+                    label.setFont(font)
+                    label.setText(module.attributes["label"].value)
+                    count=count+1
+                    if x>2:
+                        x=0
+                        y=y+170
+                    else:
+                        x=x+1
                 else:
-                    x=x+1
-            else:
-                self.fakeModules[module.attributes["name"].value]={}
-                self.fakeModules[module.attributes["name"].value]["name"] = module.attributes["label"].value
-                self.fakeModules[module.attributes["name"].value]["order"] = module.attributes["order"].value
-                self.fakeModules[module.attributes["name"].value]["settings"]=settings
+                    self.fakeModules[module.attributes["name"].value]={}
+                    self.fakeModules[module.attributes["name"].value]["instance"] = None
+                    self.fakeModules[module.attributes["name"].value]["name"] = module.attributes["label"].value
+                    self.fakeModules[module.attributes["name"].value]["order"] = module.attributes["order"].value
+                    self.fakeModules[module.attributes["name"].value]["pages"] = module.attributes["pages"].value
+                    self.fakeModules[module.attributes["name"].value]["settings"]=settings
         vol = dom.getElementsByTagName('volume')[0]
         volume.init(json.loads(vol.firstChild.data), self.modules["setup"]["instance"].settings["mixer"])
+
         
     def sortModules(self, modules):
         sortedMods = [None] * len(modules)
@@ -250,12 +267,16 @@ class pyCAR(QtGui.QMainWindow, form_class):
         config = '<?xml version="1.0" encoding="UTF-8" ?>\n'
         config+= '<pyCAR>\n'
         config+= '  <modules>\n'
-        for module in self.modules:
-            if self.modules[module]["instance"] != self:
-                config+='       <module name="'+module+'" label="'+self.modules[module]["name"]+'" enabled="1" order="'+self.modules[module]["order"]+'">'+json.dumps(self.modules[module]["instance"].settings)+'</module>\n'
-        for module in self.fakeModules:
-            config+='       <module name="'+module+'" label="'+self.fakeModules[module]["name"]+'" enabled="0" order="'+self.fakeModules[module]["order"]+'">'+json.dumps(self.fakeModules[module]["settings"])+'</module>\n'
-
+        modules={}
+        modules.update(self.modules)
+        modules.update(self.fakeModules)
+        for module in modules:
+            if module != "pyCAR":
+                try:
+                    settings = json.dumps(self.modules[module]["instance"].settings)
+                except:
+                    settings = json.dumps(modules[module]["settings"])
+                config+='       <module name="'+module+'" label="'+modules[module]["name"]+'" enabled="'+("0" if modules[module]["instance"] == None else "1")+'" order="'+modules[module]["order"]+'" pages="'+modules[module]["pages"]+'">'+settings+'</module>\n'
         config+= '  </modules>\n'
         config+= '  <volume>{"mute":0,"balance":0,"volume":30}</volume>\n'
         config+= '</pyCAR>\n'
@@ -285,29 +306,6 @@ class pyCAR(QtGui.QMainWindow, form_class):
         # Set Time
         self.lblTime.setText('{0:%H:%M}'.format(datetime.datetime.now()))
         
-########################################################################
-##
-## Slide functions
-##
-########################################################################
-
-    def startSlide(self, direction, frame):
-        if direction=="left":
-            self.slideEnd=frame.x()-700
-        else:
-            self.slideEnd=frame.x()+700       
-        self.slideTimer = QtCore.QTimer()
-        self.slideTimer.timeout.connect(lambda: self.slideFrame(direction, frame))
-        self.slideTimer.start(10)
-               
-    def slideFrame(self, direction, frame):
-        if direction=="left":
-            x=frame.x()-25
-        else:
-            x=frame.x()+25
-        frame.setGeometry(QtCore.QRect(x, 0, 2100, 480))
-        if x==self.slideEnd:
-            self.slideTimer.stop()       
 
 
 

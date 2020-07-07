@@ -9,5 +9,12 @@ amixer set Capture nocap
 # sets the output to headphones:
 #pacmd set-sink-port 0 analog-output-headphones
 cd /home/pi/pyCAR
-./pyCAR.py fullscreen
+size=$(xdpyinfo  | grep -oP 'dimensions:\s+\K\S+')
+if [ "$size" = "800x480" ]
+then
+    fs="fullscreen"
+else
+    fs=""
+fi
+./pyCAR.py $fs
 sudo killall navit

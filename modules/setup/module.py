@@ -1,10 +1,33 @@
-from PyQt4 import QtCore, QtGui, uic
+from PyQt4 import Qt, QtCore, QtGui, uic
 import os, netifaces as ni, psutil, time, alsaaudio, pulsectl
 from subprocess import call
+from xml.dom import minidom
 
 path=os.path.dirname(os.path.abspath( __file__ ))
 form_class = uic.loadUiType(path+"/gui.ui")[0]
 pulse = pulsectl.Pulse('pyCAR')
+
+class tableModel(QtGui.QStandardItemModel):
+    def __init__(self,datain,parent=None,*args):
+        QtGui.QStandardItemModel.__init__(self,parent,*args)
+        self.header = None
+        self.modules = None
+        
+    def headerData(self,section,orientation,role=QtCore.Qt.DisplayRole):
+        if orientation==QtCore.Qt.Vertical:
+            if role==QtCore.Qt.DecorationRole:
+                mPath = path.rsplit('/', 1)
+                module = self.modules[section]
+                return QtGui.QPixmap(mPath[0]+"/"+module.attributes["name"].value+"/button.png")
+            if role==QtCore.Qt.DisplayRole:
+                return ""
+        if role==QtCore.Qt.DisplayRole and orientation==QtCore.Qt.Horizontal:
+            return self.header[section]
+        return QtGui.QStandardItemModel.headerData(self,section,orientation,role)
+        
+    def itemChanged(self, item):
+        print(item)
+        print("Item {!r} checkState: {}".format(item.text(), item.checkState())) 
 
 class setup(QtGui.QMainWindow, form_class):
 
@@ -39,6 +62,29 @@ class setup(QtGui.QMainWindow, form_class):
         self.timer.timeout.connect(lambda: self.cpu())
         self.timer.start(1000)
         
+        # Modules
+        dom = minidom.parse('./system/config.xml')
+        modules = parent.sortModules(dom.getElementsByTagName('module'))
+        print(modules[1])
+        self.tableModel = tableModel(self)
+        self.tableModel.header = ['Enabled', 'Name', 'Label']
+        self.tableModel.modules = modules
+        for module in modules:
+            item = QtGui.QStandardItem()
+            item.setCheckable(True)
+            if module.attributes["enabled"].value == "1":
+                item.setCheckState(2)
+            
+            
+            #icon = QtGui.QIcon(r""+mPath[0]+"/modules/"+module.attributes["name"].value+"/button.png")
+            name = QtGui.QStandardItem(module.attributes["name"].value)
+            label = QtGui.QStandardItem(module.attributes["label"].value)
+            
+            self.tableModel.appendRow([item, name, label])
+        self.modules.setModel(self.tableModel)
+        
+        
+
         
     def mute(self):
         pass

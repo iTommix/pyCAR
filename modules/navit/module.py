@@ -1,6 +1,6 @@
 
 import subprocess, time, os, sys
-from PyQt4 import QtGui, uic
+from PyQt4 import QtCore, QtGui, uic
 
 path=os.path.dirname(os.path.abspath( __file__ ))
 form_class = uic.loadUiType(path+"/gui.ui")[0]
@@ -11,19 +11,27 @@ class navit(QtGui.QMainWindow, form_class):
         QtGui.QWidget.__init__(self, parent)
         self.parent=parent
         self.setupUi(self)
+        self.stack = None
         process = subprocess.Popen(['navit', '-c', '/usr/local/share/navit/navit.xml'],stdout=subprocess.PIPE, shell=True)
         pid = str(process.pid)
-        time.sleep(2)
         cmd='xwininfo -name \'Navit\' | sed -e \'s/^ *//\' | grep -E "Window id" | awk \'{ print $4 }\''
         wid='';
         while wid=="" :
             proc = subprocess.check_output(cmd, shell=True)
             wid=proc.decode("utf-8").replace("\n","");
     
-        time.sleep(0.5)
-        window = QtGui.QX11EmbedContainer(self.frame)
-        window.resize(700, 480)
-        window.embedClient(int(wid, 16))
+        self.readyTimer = QtCore.QTimer()
+        self.readyTimer.timeout.connect(lambda: self.ready(wid))
+        self.readyTimer.start(500)
+
+        
+    def ready(self, wid):
+        if self.stack != None:
+            self.readyTimer.stop()
+            window = QtGui.QX11EmbedContainer(self.stack)
+            window.resize(700, 480)
+            window.embedClient(int(wid, 16))
+            
         
     def focus(self):
         pass

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>480</height>
+    <width>739</width>
+    <height>519</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,20 +17,14 @@
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <widget class="QFrame" name="frame">
+   <widget class="QWidget" name="page1" native="true">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1400</width>
+      <width>700</width>
       <height>480</height>
      </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
     </property>
     <widget class="QFrame" name="player">
      <property name="geometry">

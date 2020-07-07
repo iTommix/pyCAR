@@ -2,7 +2,6 @@ from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QIcon
 import sys, os, json, time, dbus
 from xml.dom import minidom
-import system.stackedWidget as stack
 
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
 form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
@@ -15,14 +14,6 @@ class a2dp(QtGui.QMainWindow, form_class):
         self.settings=settings
         self.path = self.settings["a2dpPath"]
         self.setupUi(self)
-        
-        self.stack = stack.StackedWidget()
-        self.stack.addWidget(self.page1)
-        self.stack.addWidget(self.page2)        
-        hbox = QtGui.QHBoxLayout(self.frame)
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addWidget(self.stack)
-        self.frame.setLayout(hbox)
         
         self.musicSlider.setEnabled(False)
         self.btn_Select.clicked.connect(lambda: self.showBrowser())
@@ -107,7 +98,7 @@ class a2dp(QtGui.QMainWindow, form_class):
         device=self.parent.mobile.getConnectedDevice()
         if device!=False:
             self.setPlayer()
-            self.frame.setEnabled(1)
+            self.stack.setEnabled(1)
             self.lbl_Phone.setText(self.parent.mobile.getConnectedName(device))
             try:
                 bus = dbus.SystemBus()
@@ -131,7 +122,7 @@ class a2dp(QtGui.QMainWindow, form_class):
                 pass
         else:
             self.lbl_Phone.setText("Nicht verbunden")
-            self.frame.setEnabled(0)
+            self.stack.setEnabled(0)
 
     def setProperties(self, prop):
         device=self.parent.mobile.getConnectedDevice()

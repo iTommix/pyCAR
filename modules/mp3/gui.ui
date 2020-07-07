@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2951</width>
-    <height>977</height>
+    <width>2221</width>
+    <height>497</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,29 +20,10 @@
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <widget class="QFrame" name="frame">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>700</width>
-      <height>480</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border: 0px;background-image: url(./skins/mp3.png); </string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-   </widget>
    <widget class="QWidget" name="page1" native="true">
     <property name="geometry">
      <rect>
-      <x>701</x>
+      <x>0</x>
       <y>0</y>
       <width>700</width>
       <height>480</height>
@@ -249,7 +230,7 @@
       <enum>Qt::ToolButtonFollowStyle</enum>
      </property>
     </widget>
-    <widget class="QLabel" name="lbl_Title">
+    <widget class="QTLabel" name="lbl_Title">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -600,7 +581,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="lbl_Album">
+    <widget class="QTLabel" name="lbl_Album">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -801,7 +782,7 @@
       <enum>Qt::ToolButtonFollowStyle</enum>
      </property>
     </widget>
-    <widget class="QLabel" name="lbl_Artist">
+    <widget class="QTLabel" name="lbl_Artist">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -1014,7 +995,7 @@
    <widget class="QWidget" name="page2" native="true">
     <property name="geometry">
      <rect>
-      <x>1402</x>
+      <x>701</x>
       <y>0</y>
       <width>700</width>
       <height>480</height>
@@ -1155,27 +1136,17 @@
       <enum>Qt::ToolButtonFollowStyle</enum>
      </property>
     </widget>
-    <zorder>albumList</zorder>
-    <zorder>btn_Interprets</zorder>
-    <zorder>btn_Likes</zorder>
-    <zorder>btn_Album</zorder>
-    <zorder>btn_Back</zorder>
-    <zorder>albumList</zorder>
-    <zorder>btn_Interprets</zorder>
-    <zorder>btn_Likes</zorder>
-    <zorder>btn_Album</zorder>
-    <zorder>btn_Back</zorder>
    </widget>
    <widget class="QWidget" name="page3" native="true">
     <property name="geometry">
      <rect>
-      <x>2103</x>
+      <x>1402</x>
       <y>0</y>
       <width>700</width>
       <height>480</height>
      </rect>
     </property>
-    <widget class="QLabel" name="lbl_currentAlbum">
+    <widget class="QTLabel" name="lbl_currentAlbum">
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -1473,6 +1444,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QTLabel</class>
+   <extends>QLabel</extends>
+   <header>QTWidgets</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

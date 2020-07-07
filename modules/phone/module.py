@@ -1,7 +1,6 @@
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QIcon
 import sys, os, json, time, dbus, sqlite3
-import system.stackedWidget as stack
 
 
 
@@ -15,18 +14,6 @@ class phone(QtGui.QMainWindow, form_class):
         self.parent=parent
         self.settings=settings
         self.setupUi(self)
-        
-        self.stack = stack.StackedWidget()
-        self.stack.addWidget(self.page1)
-        self.stack.addWidget(self.page2)
-        self.stack.addWidget(self.page3) 
-        hbox = QtGui.QHBoxLayout(self.frame)
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addWidget(self.stack)
-        self.frame.setLayout(hbox)
-        
-        
-        #self.setGeometry(QtCore.QRect(0, 0, 700, 480))
         
         self.call=0
         self.callPath=None
@@ -185,12 +172,13 @@ class phone(QtGui.QMainWindow, form_class):
                         else:
                             number = "Anonym"
                         self.lblPhoneIncomingNumber.setText(number)
-                        self.frame.setGeometry(QtCore.QRect(-2100, 0, 2800, 480))
+                        #self.frame.setGeometry(QtCore.QRect(-2100, 0, 2800, 480))
+                        self.stack.setCurrentIndex(3)
                         self.parent.mainFrame.setCurrentIndex(self.parent.modules["phone"]["deck"])
                         self.parent.active="phone"
    
             if callState=="" and self.call==1:
-                self.frame.setGeometry(QtCore.QRect(0, 0, 2100, 480))
+                self.stack.setCurrentIndex(0)
                 self.endCall()
 
     def Phonebook(self):
