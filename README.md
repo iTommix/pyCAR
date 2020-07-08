@@ -24,7 +24,7 @@ typora-root-url: ../pyCAR
 - Import of Cellphones Phonebook
 - Radio FM-Tuner with SI4703 or Web-Radio (Auto-Detect)
 - MP3-Player based on mplayer in pure Python3
-- Module-Based. You can develope own Modules
+- Module-Based. You can develope own Modules ([see: Wiki](https://github.com/iTommix/pyCAR/wiki/Module-creation))
 
 No use of 3rd-Party like Kodi. 
 

@@ -32,7 +32,7 @@
     <property name="styleSheet">
      <string notr="true">background-color: #0000ff;</string>
     </property>
-    <widget class="QLabel" name="label">
+    <widget class="QTLabel" name="label">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -88,7 +88,7 @@
     <property name="styleSheet">
      <string notr="true">background-color: #ff0000;</string>
     </property>
-    <widget class="QLabel" name="label_2">
+    <widget class="QTLabel" name="label_2">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -131,6 +131,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QTLabel</class>
+   <extends>QLabel</extends>
+   <header>QTWidgets</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
