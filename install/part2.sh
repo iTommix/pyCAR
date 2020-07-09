@@ -69,7 +69,7 @@ sudo pip3 install smbus
 sudo pip3 install Adafruit_MAX9744
 sudo pip3 install mplayer.py
 sudo pip3 install schedule
-unzip ./nOBEX.zip
+git clone https://github.com/nccgroup/nOBEX
 cd nOBEX
 sudo python3 setup.py install
 cd ..

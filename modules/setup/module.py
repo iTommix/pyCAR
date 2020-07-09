@@ -46,15 +46,20 @@ class setup(QtGui.QMainWindow, form_class):
         self.btnFindBT.clicked.connect(lambda: self.getBTDevices())
         self.btnConnectBT.clicked.connect(lambda: self.connectDevice())
         self.btnUntrustBT.clicked.connect(lambda: self.untrustDevice())
+        self.btnPhoneBook.clicked.connect(lambda: self.parent.mobile.loadPhonebook())
         self.btnBTAuto.clicked.connect(lambda: self.setAuto())
         self.btnBTAuto.setEnabled(False)
         self.tblBTDevices.itemClicked.connect(self.btDeviceChanged)
+        self.balanceReset.clicked.connect(lambda: self.balanceSlider.setValue(0))
         self.soundcards.activated.connect(self.getMixer)
         self.cardprofile.activated.connect(self.setProfile)
         self.cardmixer.activated.connect(self.setMixer)
+        self.balanceSlider.valueChanged.connect(lambda: self.balance())
         if self.settings["bt_auto"]:
             self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_on.png);background-repeat: none; border: 0px;")
-            self.parent.mobile.connect(self.settings["bt_device"])
+            self.parent.schedule.every(2).seconds.do(self.connectMobile).tag('connectMobile')
+            
+        self.balanceSlider.setValue(self.settings["balance"])
         
         self.getSoundcards()
         self.btDevices={}
@@ -79,12 +84,9 @@ class setup(QtGui.QMainWindow, form_class):
             self.tableModel.appendRow([item, name, label])
         self.modules.setModel(self.tableModel)
         
-    def mute(self):
-        pass
-            
-    def playing(self):
-        return 0
-    
+    def connectMobile(self):
+        if self.parent.mobile.getConnectedDevice() == False and self.settings["bt_device"] != "":
+            self.parent.mobile.connect(self.settings["bt_device"])
         
     def focus(self):
         try:
@@ -116,6 +118,10 @@ class setup(QtGui.QMainWindow, form_class):
         use = str(int(disk.used/1024/1024))
         self.lblDisk2.setText(str(int(disk.percent)) + "% ("+use+" MB) von "+ges+" MB genutzt")
         
+    def balance(self):
+        self.settings["balance"] = self.balanceSlider.value()
+        self.parent.volume.setBalance(self.balanceSlider.value())
+        self.parent.volume.setVolume()
 
     def getSoundcards(self):
         current = 0
@@ -152,7 +158,7 @@ class setup(QtGui.QMainWindow, form_class):
         pulse.card_profile_set(self.selectedCard, self.selectedCard.profile_list[self.cardprofile.currentIndex()])
     
     def setMixer(self):
-        self.parent.volume.setMixer(self, self.cardmixer.currentText())
+        self.parent.volume.setMixer(self.cardmixer.currentText())
     
     def getMixer(self):
         i=0
@@ -175,7 +181,7 @@ class setup(QtGui.QMainWindow, form_class):
             #print("  '%s'" % name)
             if self.settings["mixer"] == name:
                 current=i
-                self.parent.volume.setMixer(self, name)
+                self.parent.volume.setMixer(name)
             self.cardmixer.addItem(name)
             i=i+1
         self.cardmixer.setCurrentIndex(current)
@@ -188,12 +194,14 @@ class setup(QtGui.QMainWindow, form_class):
             self.settings["bt_device"] = ""
             self.settings["bt_name"] = ""
             self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_off.png);background-repeat: none; border: 0px;")
+            self.parent.schedule.clear('connectMobile')
         else:
             try:
                 self.settings["bt_auto"] = 1
                 self.settings["bt_device"] = self.tblBTDevices.item(self.tblBTDevices.currentRow(), 0).text()
                 self.settings["bt_name"] = self.tblBTDevices.item(self.tblBTDevices.currentRow(), 1).text()
                 self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_on.png);background-repeat: none; border: 0px;")
+                self.parent.schedule.every(2).seconds.do(self.connectMobile).tag('connectMobile')
             except:
                 pass
     

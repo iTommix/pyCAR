@@ -20,7 +20,6 @@ class phone(QtGui.QMainWindow, form_class):
         
     def loaded(self):
         self.parent.schedule.every().second.do(self.detectIncomingCall).tag('detectIncomingCall')
-        self.Phonebook()
         self.phonebookList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         self.tblPhoneNumbers.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         
@@ -37,6 +36,7 @@ class phone(QtGui.QMainWindow, form_class):
         
         self.btnPhonebook.setIcon(QIcon("./images/phonebook.png"));
         self.btnPhonebook.setIconSize(QtCore.QSize(100,100))
+        self.btnLoadPhonebook.clicked.connect(lambda: self.loadPhonebook())
         
         self.phonebookList.itemClicked.connect(self.PhoneNumbers)
         self.tblPhoneNumbers.itemClicked.connect(self.phoneNumberSelected)
@@ -48,7 +48,11 @@ class phone(QtGui.QMainWindow, form_class):
         self.btnCallReject.clicked.connect(lambda: self.answerRejectCall('reject'))
     
     def focus(self):
-        pass
+        self.Phonebook()
+    
+    def loadPhonebook(self):
+        self.parent.mobile.loadPhonebook()
+        self.Phonebook()
     
     def phoneButton(self):
         button=self.sender()
@@ -161,10 +165,12 @@ class phone(QtGui.QMainWindow, form_class):
                     self.call=1
                     if self.parent.mainFrame.currentIndex() != self.parent.modules["phone"]["deck"]:
                         if properties["LineIdentification"] != "":
-                            number = self.getCaller(properties["LineIdentification"])
+                            number, ntype = self.getCaller(properties["LineIdentification"])
                         else:
                             number = "Anonym"
+                            ntype=""
                         self.lblPhoneIncomingNumber.setText(number)
+                        self.lblPhoneIncomingType.setText(ntype)
                         #self.frame.setGeometry(QtCore.QRect(-2100, 0, 2800, 480))
                         self.stack.setCurrentIndex(3)
                         self.parent.mainFrame.setCurrentIndex(self.parent.modules["phone"]["deck"])
@@ -231,12 +237,12 @@ class phone(QtGui.QMainWindow, form_class):
         database="/media/pi/pyCar/Phone/Phonebooks/" + device.replace(":", "_") + ".db"
         conn = sqlite3.connect(database)
         cursor = conn.cursor()
-        cursor.execute("SELECT nu.uid, na.first_name, na.surname FROM numbers nu LEFT JOIN names na ON na.uid=nu.uid WHERE nu.number='"+ number +"'")
+        cursor.execute("SELECT nu.uid, nu.type, na.first_name, na.surname FROM numbers nu LEFT JOIN names na ON na.uid=nu.uid WHERE nu.number='"+ number +"'")
         row=cursor.fetchone()
         try:
-            return row[1]+" "+row[2]
+            return row[2]+" "+row[3], row[1]
         except:
-            return number
+            return number, ""
         
     def phoneNumberSelected(self):
         number = self.tblPhoneNumbers.item(self.tblPhoneNumbers.currentRow(),1).text()

@@ -5,7 +5,7 @@ import sys, platform, os, importlib, alsaaudio, gpsd, datetime, json, time, sche
 from xml.dom import minidom
 from functools import partial
 from subprocess import call
-from system.bluez import mobile
+from system.mobile import *
 import system.volume as volume
 from system.QTWidgets import *
 
@@ -46,7 +46,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.timer = QtCore.QTimer()
         #self.timer.timeout.connect(lambda: self.timefunctions())
         self.timer.timeout.connect(lambda: self.schedule.run_pending())
-        self.timer.start(100)
+        self.timer.start(1000)
         
         self.schedule.every().second.do(self.timefunctions).tag("primary")
 
@@ -59,11 +59,14 @@ class pyCAR(QtGui.QMainWindow, form_class):
         return QtGui.QWidget.eventFilter(self, source, event)
     
     def resume(self):
-        self.mainFrame.setCurrentIndex(self.modules[self.player]["deck"])
-        if self.modules[self.player]["instance"] != self :
-            self.active = self.player
-            self.volume.setVolume(self.modules[self.player]["instance"].settings["volume"])
-            self.modules[self.player]["instance"].play()
+        if self.player != None :
+            self.mainFrame.setCurrentIndex(self.modules[self.player]["deck"])
+            if self.modules[self.player]["instance"] != self :
+                self.active = self.player
+                self.volume.setVolume(self.modules[self.player]["instance"].settings["volume"])
+                self.modules[self.player]["instance"].play()
+        else:
+            self.mainFrame.setCurrentIndex(0)
             
     def stopPlayer(self):
         if self.player != None and hasattr(self.modules[self.player]["instance"], 'stop'):
@@ -260,7 +263,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
                     self.fakeModules[module.attributes["name"].value]["pages"] = module.attributes["pages"].value
                     self.fakeModules[module.attributes["name"].value]["settings"]=settings
         vol = dom.getElementsByTagName('volume')[0]
-        #volume.init(json.loads(vol.firstChild.data), self.modules["setup"]["instance"].settings["mixer"])
+        volume.init(json.loads(vol.firstChild.data), self.modules["setup"]["instance"].settings["mixer"])
 
         
     def sortModules(self, modules):
