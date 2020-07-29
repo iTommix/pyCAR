@@ -7,7 +7,7 @@ typora-root-url: ../pyCAR
 
 ![Splash-Screen](/install/splash.png)
 
-For a change log [see Wiki](https://github.com/iTommix/pyCAR/wiki)
+For a changelog [see Wiki](https://github.com/iTommix/pyCAR/wiki)
 
 ### My Hardware-Configuration:
 
