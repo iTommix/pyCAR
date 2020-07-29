@@ -1,4 +1,4 @@
-import bluetooth, os, struct, sys
+import bluetooth, os, struct, sys, time
 from xml.etree import ElementTree
 from nOBEX import client, headers, responses
 from nOBEX.bluez_helper import find_service
@@ -6,7 +6,7 @@ from subprocess import call, check_output
 from random import randint
 import locale
 import sqlite3
-
+from PyQt4 import QtGui
 
 class mobile():
     
@@ -15,12 +15,15 @@ class mobile():
         self.connectedDevice=""
         self.phonebook=0
         self.mic=False
+        
 
     def setMicActive(self, status):
         if status==True:
             if self.mic == False:
                 self.mic=True
                 call("amixer set Capture cap", shell=True)
+                #call('pactl load-module module-loopback source=bluez_source.3C_2E_FF_1D_93_41.headset_audio_gateway sink=alsa_output.platform-soc_sound.stereo-fallback.echo-cancel adjust_time=1 latency_msec=50 source_dont_move=true sink_input_properties="media.role=phone"', shell=True)
+                #call('pactl load-module module-loopback source=alsa_input.platform-soc_sound.stereo-fallback.echo-cancel sink=bluez_sink.3C_2E_FF_1D_93_41.headset_audio_gateway adjust_time=1 latency_msec=50 sink_dont_move=true source_output_properties="media.role=phone"', shell=True)
         else:
             self.mic=False
             call("amixer set Capture nocap", shell=True)
@@ -118,6 +121,7 @@ class mobile():
     
     def loadPhonebook(self):
         device_address=self.getConnectedDevice()
+        deviceName=self.getConnectedName(device_address)
         encoding = locale.getdefaultlocale()[1]
         service = self.findService("Phonebook")
         if service:
@@ -158,8 +162,9 @@ class mobile():
             
             # Request all the file names obtained earlier.
             c.setpath(prefix + "telecom/pb")
-            
             uid=1
+            self.parent.showMessage("Telefonbuch", "Lade "+str(len(names))+" Rufnummern von "+deviceName, progress=len(names))
+            QtGui.QApplication.processEvents()
             for name in names:
                 hdrs, card = c.get(name, header_list=[headers.Type(b"x-bt/vcard")])
                 #print(card)
@@ -167,6 +172,8 @@ class mobile():
                 gotNumber=False
                 if len(parsed["phone"])>0:
                     for value in parsed["phone"]:
+                        self.parent.dialogProgress.setValue(uid)
+                        QtGui.QApplication.processEvents()
                         try:
                             number=parsed["phone"][value]["number"]
                             cursor.execute("INSERT INTO numbers VALUES ('" + str(uid) +"', '"+ number +"', '"+ parsed["phone"][value]["type"] +"')")
@@ -186,7 +193,8 @@ class mobile():
                     uid+=1
         
             
-            c.disconnect()       
+            c.disconnect()
+            self.parent.closeMessage()
         
     def parse(self, raw):
         encoding = locale.getdefaultlocale()[1]

@@ -19,7 +19,10 @@ class phone(QtGui.QMainWindow, form_class):
         
         
     def loaded(self):
-        self.parent.schedule.every().second.do(self.detectIncomingCall).tag('detectIncomingCall')
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.detectIncomingCall())
+        self.timer.start(1000)
+        
         self.phonebookList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         self.tblPhoneNumbers.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         
@@ -40,9 +43,8 @@ class phone(QtGui.QMainWindow, form_class):
         
         self.phonebookList.itemClicked.connect(self.PhoneNumbers)
         self.tblPhoneNumbers.itemClicked.connect(self.phoneNumberSelected)
-        self.btnPhonebook.clicked.connect(lambda: self.stack.setCurrentIndex(1))
-        self.btnBackPhone.clicked.connect(lambda: self.stack.setCurrentIndex(0))
-        self.slideback2.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        self.btnPhonebook.clicked.connect(lambda: self.parent.setPage(self.stack, 1))
+
         
         self.btnCallAnswer.clicked.connect(lambda: self.answerRejectCall('answer'))
         self.btnCallReject.clicked.connect(lambda: self.answerRejectCall('reject'))
@@ -118,6 +120,7 @@ class phone(QtGui.QMainWindow, form_class):
             
     def endCall(self):
         self.call=0
+        self.parent.mobile.setMicActive(False)
         self.btnCallNumber.setIcon(QIcon("./images/call.png"));
         self.hideButtonsOnCall(False)
         #self.btnCallNumber.setStyleSheet("background-image: url(./images/call.png);background-repeat: none;border: 0px;")
@@ -172,12 +175,13 @@ class phone(QtGui.QMainWindow, form_class):
                         self.lblPhoneIncomingNumber.setText(number)
                         self.lblPhoneIncomingType.setText(ntype)
                         #self.frame.setGeometry(QtCore.QRect(-2100, 0, 2800, 480))
-                        self.stack.setCurrentIndex(3)
+                        self.parent.setPage(self.stack, 3)
                         self.parent.mainFrame.setCurrentIndex(self.parent.modules["phone"]["deck"])
                         self.parent.active="phone"
+                        self.parent.volume.setVolume(self.settings["volume"])
    
             if callState=="" and self.call==1:
-                self.stack.setCurrentIndex(0)
+                self.parent.setPage(self.stack, 0)
                 self.endCall()
 
     def Phonebook(self):
@@ -228,7 +232,7 @@ class phone(QtGui.QMainWindow, form_class):
             c+=1
         #self.tblPhoneNumbers.resizeColumnsToContents()
         self.lblPhoneName.setText(self.phonebookList.currentItem().text())      
-        self.stack.setCurrentIndex(2)
+        self.parent.setPage(self.stack, 2)
 
         
         
@@ -247,7 +251,8 @@ class phone(QtGui.QMainWindow, form_class):
     def phoneNumberSelected(self):
         number = self.tblPhoneNumbers.item(self.tblPhoneNumbers.currentRow(),1).text()
         self.lblPhoneNumber.setText("+"+str(self.getNumber(number)))
-        self.frame.setGeometry(QtCore.QRect(0, 0, 2100, 480))
+        #self.frame.setGeometry(QtCore.QRect(0, 0, 2100, 480))
+        self.parent.setPage(self.stack, 0)
         self.makePhoneCall()
         
     def getNumber(self, number):

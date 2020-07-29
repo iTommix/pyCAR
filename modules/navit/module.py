@@ -1,16 +1,19 @@
-
+import dbus
+from dbus.mainloop.glib import DBusGMainLoop
 import subprocess, time, os, sys
 from PyQt4 import QtCore, QtGui, uic
+from espeak import espeak
 
 path=os.path.dirname(os.path.abspath( __file__ ))
-form_class = uic.loadUiType(path+"/gui.ui")[0]
 
-class navit(QtGui.QMainWindow, form_class):
+
+class navit(QtGui.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
         self.stack = None
-        process = subprocess.Popen(['navit', '-c', '/usr/local/share/navit/navit.xml'],stdout=subprocess.PIPE, shell=True)
+        self.lastSpeech = None
+        process = subprocess.Popen(['navit'],stdout=subprocess.PIPE, shell=True)
         pid = str(process.pid)
         cmd='xwininfo -name \'Navit\' | sed -e \'s/^ *//\' | grep -E "Window id" | awk \'{ print $4 }\''
         self.wid='';
@@ -18,9 +21,15 @@ class navit(QtGui.QMainWindow, form_class):
             proc = subprocess.check_output(cmd, shell=True)
             self.wid=proc.decode("utf-8").replace("\n","");
     
-        
+    def focus(self):
+        if self.lastSpeech != None:
+            self.speech(self.lastSpeech)
+    
 
     def loaded(self):
+        espeak.set_voice(self.settings["voice"])
+        espeak.set_parameter(espeak.core.parameter_RATE,self.settings["speed"])
+        espeak.synth("")
         self.readyTimer = QtCore.QTimer()
         self.readyTimer.timeout.connect(lambda: self.ready())
         self.readyTimer.start(500)
@@ -31,24 +40,31 @@ class navit(QtGui.QMainWindow, form_class):
             window = QtGui.QX11EmbedContainer(self.stack)
             window.resize(700, 480)
             window.embedClient(int(self.wid, 16))
-            
+            DBusGMainLoop(set_as_default=True)
+            bus = dbus.SessionBus()
+            bus.add_signal_receiver(self.signal_handler,
+                        bus_name='org.navit_project.navit',
+                        interface_keyword='interface',
+                        member_keyword='member',
+                        path_keyword='path',
+                        message_keyword='msg')
+
         
-    def focus(self):
-        pass
+    def signal_handler(self, *args, **kwargs):
+        print(args)
+        if args[0]:
+            self.speech(args[0]["data"])
+            self.lastSpeech = args[0]["data"]
     
-    def mute(self):
-        pass
-            
-    def playing(self):
-        return 0
-
-
-
-def main():
-    app = QtGui.QApplication(sys.argv)
-    form = navit()
-    form.show()
-    sys.exit(app.exec_())
+    def speech(self, text):
+        self.parent.pa.lowerVolume("navit")
+        espeak.synth(text)
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda: self.checkSpeech())
+        self.timer.start(1000)
     
-if __name__ == "__main__":
-    main()
+    def checkSpeech(self):
+        if espeak.is_playing() == False:
+            self.timer.stop()
+            self.parent.pa.riseVolume()
+    

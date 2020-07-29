@@ -1063,7 +1063,7 @@
     <widget class="QToolButton" name="btn_Interprets">
      <property name="geometry">
       <rect>
-       <x>190</x>
+       <x>300</x>
        <y>10</y>
        <width>80</width>
        <height>50</height>
@@ -1082,7 +1082,7 @@
     <widget class="QToolButton" name="btn_Likes">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>450</x>
        <y>10</y>
        <width>80</width>
        <height>50</height>
@@ -1101,7 +1101,7 @@
     <widget class="QToolButton" name="btn_Album">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>150</x>
        <y>10</y>
        <width>80</width>
        <height>50</height>
@@ -1109,25 +1109,6 @@
      </property>
      <property name="styleSheet">
       <string notr="true">background-image: url(./images/folder.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="toolButtonStyle">
-      <enum>Qt::ToolButtonFollowStyle</enum>
-     </property>
-    </widget>
-    <widget class="QToolButton" name="btn_Back">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>80</width>
-       <height>50</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-image: url(./images/close.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center</string>
      </property>
      <property name="text">
       <string/>
@@ -1149,9 +1130,9 @@
     <widget class="QTLabel" name="lbl_currentAlbum">
      <property name="geometry">
       <rect>
-       <x>190</x>
-       <y>20</y>
-       <width>491</width>
+       <x>10</x>
+       <y>70</y>
+       <width>680</width>
        <height>31</height>
       </rect>
      </property>
@@ -1348,9 +1329,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
+       <y>110</y>
        <width>681</width>
-       <height>391</height>
+       <height>361</height>
       </rect>
      </property>
      <property name="font">
@@ -1406,7 +1387,7 @@
     <widget class="QToolButton" name="btn_Shuffle_list">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>150</x>
        <y>10</y>
        <width>80</width>
        <height>50</height>
@@ -1414,25 +1395,6 @@
      </property>
      <property name="styleSheet">
       <string notr="true">background-image: url(./images/shuffle.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="toolButtonStyle">
-      <enum>Qt::ToolButtonFollowStyle</enum>
-     </property>
-    </widget>
-    <widget class="QToolButton" name="slideback">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>80</width>
-       <height>50</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-image: url(./images/close.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center</string>
      </property>
      <property name="text">
       <string/>

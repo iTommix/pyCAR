@@ -1,17 +1,26 @@
-from PyQt4 import Qt, QtCore, QtGui, uic
-import os, netifaces as ni, psutil, time, alsaaudio, pulsectl
+from PyQt4 import Qt, QtCore, QtGui
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from PyQt4.uic import *
+from types import *
+import os, netifaces as ni, psutil, time, alsaaudio, pulsectl, importlib, sys
 from subprocess import call
 from xml.dom import minidom
+from dbus.mainloop.glib import DBusGMainLoop
 
 path=os.path.dirname(os.path.abspath( __file__ ))
-form_class = uic.loadUiType(path+"/gui.ui")[0]
+
 pulse = pulsectl.Pulse('pyCAR')
+mod=importlib.import_module("modules.setup.equalizer")
+DBusGMainLoop(set_as_default=True)
+
 
 class tableModel(QtGui.QStandardItemModel):
     def __init__(self,datain,parent=None,*args):
         QtGui.QStandardItemModel.__init__(self,parent,*args)
         self.header = None
         self.modules = None
+        #self.itemChanged.connect(self.itemChanged)
         
     def headerData(self,section,orientation,role=QtCore.Qt.DisplayRole):
         if orientation==QtCore.Qt.Vertical:
@@ -25,21 +34,62 @@ class tableModel(QtGui.QStandardItemModel):
             return self.header[section]
         return QtGui.QStandardItemModel.headerData(self,section,orientation,role)
         
-    def itemChanged(self, item):
-        print(item)
-        print("Item {!r} checkState: {}".format(item.text(), item.checkState())) 
+    
 
-class setup(QtGui.QMainWindow, form_class):
-
+class setup(QtGui.QMainWindow):
+    DOWN    = 1
+    UP      = -1
+    
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
         self.selectedCard = None
         self.selectedProfile = 0
-        
-        
-        
-        
+
+    
+    def mouseMoveEvent (self, eventQMouseEvent):
+        if (eventQMouseEvent.x()>225 and eventQMouseEvent.x()<475) and (eventQMouseEvent.y()>145 and eventQMouseEvent.y()<395):
+            self.setBalanceFader(eventQMouseEvent.x(), eventQMouseEvent.y())
+   
+    def setBalanceFader(self, x=0, y=0):
+        if x==0:
+            x=self.balanceHandle.x()+25
+        if y==0:
+            y=self.balanceHandle.y()+25
+        self.balanceHandle.setGeometry(QtCore.QRect(x-25, y-25, 50, 50))
+        balance=0
+        fader=0
+        if x<350:
+            balance-=int((100/150)*(350-x)) #350-x
+        elif x>350:
+            balance+=int((100/150)*(x-350)) #x-350
+            
+        if y<270:
+            fader-=int((100/150)*(270-y)) #231-y
+        elif y>270:
+            fader+=int((100/150)*(y-270)) #y-269
+        self.parent.pa.setBalance(balance)
+        self.parent.pa.setFader(fader)
+
     def loaded(self):
+        self.equalizer=getattr(mod, "QPaeq")(self.parent)
+        self.eq.setLayout(self.equalizer.layout())
+        self.btnResetEQ.clicked.connect(lambda: self.equalizer.reset())
+
+        self.btnSound.clicked.connect(lambda: self.parent.setPage(self.stack, 1))
+        self.btnBalance.clicked.connect(lambda: self.parent.setPage(self.stack, 2))
+        self.btnEqualizer.clicked.connect(lambda: self.parent.setPage(self.stack, 3))
+        self.btnModule.clicked.connect(lambda: self.parent.setPage(self.stack, 5))
+        
+        self.balanceTouch.setAttribute(Qt.WA_AcceptTouchEvents)
+        self.balanceTouch.setStyleSheet("background-color: #eee ;border-radius: 10px; border: 2px solid #000;")
+        self.balanceTouch.setMouseTracking(True)
+        self.balanceReset.clicked.connect(lambda: self.setBalanceFader(x=350))
+        self.faderReset.clicked.connect(lambda: self.setBalanceFader(y=270))
+        # Todo: settings setzen
+        # self.balanceSlider.setValue(self.settings["balance"])
+        
+        self.btnBluetooth.clicked.connect(lambda: self.parent.setPage(self.stack, 4))
+        
         self.btnReboot.clicked.connect(lambda: self.reboot())
         self.btnShutdown.clicked.connect(lambda: self.shutdown())
         self.btnQuit.clicked.connect(lambda: self.quit())
@@ -50,39 +100,102 @@ class setup(QtGui.QMainWindow, form_class):
         self.btnBTAuto.clicked.connect(lambda: self.setAuto())
         self.btnBTAuto.setEnabled(False)
         self.tblBTDevices.itemClicked.connect(self.btDeviceChanged)
-        self.balanceReset.clicked.connect(lambda: self.balanceSlider.setValue(0))
+
         self.soundcards.activated.connect(self.getMixer)
         self.cardprofile.activated.connect(self.setProfile)
         self.cardmixer.activated.connect(self.setMixer)
-        self.balanceSlider.valueChanged.connect(lambda: self.balance())
+
         if self.settings["bt_auto"]:
             self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_on.png);background-repeat: none; border: 0px;")
-            self.parent.schedule.every(2).seconds.do(self.connectMobile).tag('connectMobile')
+            #self.parent.schedule.every(2).seconds.do(self.connectMobile).tag('connectMobile')
             
-        self.balanceSlider.setValue(self.settings["balance"])
         
-        self.getSoundcards()
+        
+        #self.getSoundcards()
         self.btDevices={}
         
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.cpu())
-        self.timer.start(1000)
+        self.timer.start(2000)
         
-        # Modules
-        dom = minidom.parse('./system/config.xml')
-        modules = self.parent.sortModules(dom.getElementsByTagName('module'))
+        self.btnUp.clicked.connect(lambda: self.moveCurrentRow(self.UP))
+        self.btnDown.clicked.connect(lambda: self.moveCurrentRow(self.DOWN))
+        self.btnSave.clicked.connect(lambda: self.saveConfig())
+        
+        self.setup = self.parent.setup
+        self.showModules()
+        
+        
+    def showModules(self):
+        modules = self.parent.sortModules(self.setup.getElementsByTagName('module'))
         self.tableModel = tableModel(self)
-        self.tableModel.header = ['Enabled', 'Name', 'Label']
+        self.tableModel.itemChanged.connect(self.itemChanged)
+        self.tableModel.header = ['Module', 'Label', 'Description']
+        
         self.tableModel.modules = modules
         for module in modules:
-            item = QtGui.QStandardItem()
+            item = QtGui.QStandardItem(module.attributes["name"].value)
             item.setCheckable(True)
             if module.attributes["enabled"].value == "1":
                 item.setCheckState(2)
-            name = QtGui.QStandardItem(module.attributes["name"].value)
             label = QtGui.QStandardItem(module.attributes["label"].value)
-            self.tableModel.appendRow([item, name, label])
+            description = QtGui.QStandardItem(module.attributes["description"].value)
+            self.tableModel.appendRow([item, label, description])
         self.modules.setModel(self.tableModel)
+        header = self.modules.horizontalHeader()
+        header.setResizeMode(2, QtGui.QHeaderView.Stretch)
+        
+        
+    def moveCurrentRow(self, direction=DOWN):
+        if direction not in (self.DOWN, self.UP):
+            return
+
+        model = self.tableModel
+        selModel = self.modules.selectionModel()
+        selected = selModel.selectedRows()
+        if not selected:
+            return
+
+        items = []
+        indexes = sorted(selected, key=lambda x: x.row(), reverse=(direction==self.DOWN))
+
+        for idx in indexes:
+            items.append(model.itemFromIndex(idx))
+            rowNum = idx.row()
+            newRow = rowNum+direction
+            if not (0 <= newRow < model.rowCount()):
+                continue
+
+            rowItems = model.takeRow(rowNum)
+            model.insertRow(newRow, rowItems)
+
+        selModel.clear()
+        for item in items:
+            selModel.select(item.index(), selModel.Select|selModel.Rows)
+        
+        modules = self.setup.getElementsByTagName('module')
+        for row in range(self.tableModel.rowCount()):
+            index = self.tableModel.index( row, 0 );
+            for module in modules:
+                if module.attributes["name"].value == index.data():
+                    module.attributes["order"].value = str(row)
+        
+    def itemChanged(self, item):
+        modules = self.setup.getElementsByTagName('module')
+        for module in modules:
+            if module.attributes["name"].value == item.text():
+                module.attributes["enabled"].value = str(int(bool(item.checkState())))
+
+        print("Item {!r} checkState: {}".format(item.text(), item.checkState()))
+        
+    def saveConfig(self):   
+        self.parent.setup = self.setup
+        self.parent.saveConfig()
+        self.parent.stopPlayer()
+        self.parent.readConfig()
+        self.parent.switchModule(0)
+
+        
         
     def connectMobile(self):
         if self.parent.mobile.getConnectedDevice() == False and self.settings["bt_device"] != "":
@@ -117,11 +230,6 @@ class setup(QtGui.QMainWindow, form_class):
         ges = str(int(disk.total/1024/1024))
         use = str(int(disk.used/1024/1024))
         self.lblDisk2.setText(str(int(disk.percent)) + "% ("+use+" MB) von "+ges+" MB genutzt")
-        
-    def balance(self):
-        self.settings["balance"] = self.balanceSlider.value()
-        self.parent.volume.setBalance(self.balanceSlider.value())
-        self.parent.volume.setVolume()
 
     def getSoundcards(self):
         current = 0
@@ -358,7 +466,9 @@ class setup(QtGui.QMainWindow, form_class):
     def cpu(self):
         cpu = psutil.cpu_percent()
         self.lblCPU.setText(str(cpu) + "%")
-        
+        if self.settings["bt_auto"]:
+            self.connectMobile()
+            
     def reboot(self):
         call("sudo reboot", shell=True)          
             

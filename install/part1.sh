@@ -1,4 +1,8 @@
 #!/bin/bash
+headless=false
+if [ ! -f "/etc/X11/default-display-manager" ]; then
+    headless=true
+fi
 clear
 echo "***************************************"
 echo "** Remove not needed Packages        **"
@@ -30,8 +34,8 @@ echo "** Update apt and upgrade System     **"
 echo "***************************************"
 source /etc/os-release
 sudo sh -c "echo 'deb-src http://archive.raspbian.org/raspbian/ $VERSION_CODENAME main contrib non-free rpi' >> /etc/apt/sources.list"
+sudo apt-get -y install raspberrypi-kernel-headers #raspberrypi-kernel
 sudo apt-get update
-sudo apt-get -y install raspberrypi-kernel-headers raspberrypi-kernel
 echo "***************************************"
 echo "** Finished. Hit [Enter]             **"
 echo "***************************************"
@@ -46,7 +50,7 @@ while true; do
         [Yy]* )
             sudo sh -c "echo 'lcd_rotate=2' >> /boot/config.txt"
             break;;
-        [Nn]* ) exit;;
+        [Nn]* ) break;;
         * ) echo "Please answer y or n.";;
     esac
 done
@@ -55,13 +59,15 @@ sudo sh -c "echo 'dtoverlay=pi3-disable-bt' >> /boot/config.txt"
 sudo sh -c "echo 'avoid_warnings=1' >> /boot/config.txt"
 sudo sh -c "echo 'dtparam=i2c_arm=on' >> /boot/config.txt"
 sudo sh -c "echo 'i2c-dev' >> /etc/modules"
-sudo sh -c "echo '@xset s noblank' >> /etc/xdg/lxsession/LXDE-pi/autostart"
-sudo sh -c "echo '@xset s off' >> /etc/xdg/lxsession/LXDE-pi/autostart"
-sudo sh -c "echo '@xset -dpms' >> /etc/xdg/lxsession/LXDE-pi/autostart"
-sudo sed -i 's/@lxpanel --profile LXDE-pi/#@lxpanel --profile LXDE-pi/g' /etc/xdg/lxsession/LXDE-pi/autostart
-sudo sed -i 's/show_trash=1/show_trash=0/g' /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
-sudo sed -i 's/show_mounts=1/show_mounts=0/g' /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
-sudo sed -i 's/#xserver-command=X/xserver-command=X -s 0 dpms/g' /etc/lightdm/lightdm.conf
+if [ "$headless" = false ]; then
+    sudo sh -c "echo '@xset s noblank' >> /etc/xdg/lxsession/LXDE-pi/autostart"
+    sudo sh -c "echo '@xset s off' >> /etc/xdg/lxsession/LXDE-pi/autostart"
+    sudo sh -c "echo '@xset -dpms' >> /etc/xdg/lxsession/LXDE-pi/autostart"
+    sudo sed -i 's/@lxpanel --profile LXDE-pi/#@lxpanel --profile LXDE-pi/g' /etc/xdg/lxsession/LXDE-pi/autostart
+    sudo sed -i 's/show_trash=1/show_trash=0/g' /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
+    sudo sed -i 's/show_mounts=1/show_mounts=0/g' /etc/xdg/pcmanfm/LXDE-pi/desktop-items-0.conf
+    sudo sed -i 's/#xserver-command=X/xserver-command=X -s 0 dpms/g' /etc/lightdm/lightdm.conf
+fi
 sudo sed -i 's/raspberrypi/pyCAR/g' /etc/hostname
 sudo sed -i '$s/exit 0/ofonod\nexit 0/g' /etc/rc.local
 sudo chmod +x /etc/rc.local

@@ -20,7 +20,8 @@ class mp3(QtGui.QMainWindow):
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
         self.mp3player = mplayer.Player()
-
+        self.playTimer = QtCore.QTimer()
+        self.playTimer.timeout.connect(lambda: self.setSlider())
         
 
     def loaded(self):
@@ -37,9 +38,7 @@ class mp3(QtGui.QMainWindow):
         self.btn_Shuffle.clicked.connect(lambda: self.setShuffle())
         self.btn_Shuffle_list.clicked.connect(lambda: self.setShuffle())
         
-        self.btn_Select.clicked.connect(lambda: self.stack.setCurrentIndex(1))
-        self.btn_Back.clicked.connect(lambda: self.stack.setCurrentIndex(0))
-        self.slideback.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        self.btn_Select.clicked.connect(lambda: self.parent.setPage(self.stack, 1))
         
         self.albumList.itemClicked.connect(lambda: self.getSongs())
         self.musicList.itemClicked.connect(lambda: self.selectAlbum())
@@ -66,11 +65,16 @@ class mp3(QtGui.QMainWindow):
             self.btn_Like.setStyleSheet("background-image: url(./images/like_"+song["like"]+".png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
             self.mp3player.time_pos = self.settings["position"]
             self.mp3player.pause()
-            self.lbl_Time_left.setText(self.parent.getSongLength(self.mp3player.length-self.mp3player.time_pos))
-            self.lbl_Time_pos.setText(self.parent.getSongLength(self.mp3player.time_pos))
-            self.musicSlider.setMaximum(int(self.mp3player.length)+1)
+            try:
+                self.lbl_Time_left.setText(self.parent.getSongLength(self.mp3player.length-self.mp3player.time_pos))
+                self.lbl_Time_pos.setText(self.parent.getSongLength(self.mp3player.time_pos))
+                self.musicSlider.setMaximum(int(self.mp3player.length)+1)
+            except:
+                pass
             self.musicSlider.setValue(int(self.settings["position"]))
             self.setBackground()
+
+
 
     ############################################
     # System related functions                 #
@@ -83,15 +87,13 @@ class mp3(QtGui.QMainWindow):
         if self.mp3player.paused:
             self.parent.setInfo(self.lbl_Artist.text(), self.lbl_Title.text())
             self.mp3player.pause()
-            #self.playTimer.start(1000)
-            self.parent.schedule.every().second.do(self.setSlider).tag('mp3playTimer')
+            self.playTimer.start(1000)
             self.btn_Play.setStyleSheet("background-image: url(./images/pause.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
     
     def pause(self):
         if not self.mp3player.paused: 
             self.mp3player.pause()
-            #self.playTimer.stop()
-            self.parent.schedule.clear('mp3playTimer')
+            self.playTimer.stop()
             self.btn_Play.setStyleSheet("background-image: url(./images/play.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
     
     def stop(self):
@@ -121,11 +123,11 @@ class mp3(QtGui.QMainWindow):
     def setShuffle(self):
         if self.settings["shuffle"]==0:     
             self.settings["shuffle"]=1
-            if self.frame.x()<0:
+            if self.stack.currentIndex()>0:
                 start=0
                 self.settings["shuffleList"] = random.sample(range(start, len(music[self.settings["album"]])), (len(music[self.settings["album"]])-start))
                 self.playSong(self.settings["shuffleList"][0])
-                self.frame.setGeometry(QtCore.QRect(0, 0, self.frame.width(), 480))
+                self.parent.setPage(self.stack, 0)
                 del self.settings["shuffleList"][0]
             else:
                 start=self.settings["song"]+1
@@ -176,7 +178,7 @@ class mp3(QtGui.QMainWindow):
         self.settings["shuffleList"]=[]
         self.btn_Repeat.setStyleSheet("background-image: url(./images/repeat.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
         self.btn_Shuffle.setStyleSheet("background-image: url(./images/shuffle.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border:0px;background-position: center")
-        self.stack.setCurrentIndex(0)
+        self.parent.setPage(self.stack, 0)
         
     #######################################################
     # Start a song from current album by given songnumber #
@@ -194,9 +196,8 @@ class mp3(QtGui.QMainWindow):
         self.mp3player.loadfile(song["path"])
         self.musicSlider.setMaximum(int(self.mp3player.length)+1)
         self.btn_Play.setStyleSheet("background-image: url(./images/pause.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
-        self.frame.setGeometry(QtCore.QRect(0, 0, self.frame.width(), 480))
-        #self.playTimer.start(1000)
-        self.parent.schedule.every().second.do(self.setSlider).tag('mp3playTimer')
+        #self.parent.setPage(self.stack, 0)
+        self.playTimer.start(1000)
     
     def getSlider(self):
         self.mp3player.time_pos = self.musicSlider.value()
@@ -227,11 +228,14 @@ class mp3(QtGui.QMainWindow):
                     self.clearLabels()
             elif self.settings["repeat"]==0:
                 print(self.settings["song"], " => ", len(music[self.settings["album"]]))
-                if self.settings["song"] < len(music[self.settings["album"]]):
+                if self.settings["song"] < len(music[self.settings["album"]])-1:
                     self.musicList.setCurrentRow(self.settings["song"]+1)
                     self.playSong(self.settings["song"]+1)
                 else:
                     self.clearLabels()
+                    self.playTimer.stop()
+                    self.btn_Play.setStyleSheet("background-image: url(./images/play.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
+                    self.settings["song"]=0
             else:
                 if self.settings["repeat"]==1:
                     self.settings["repeat"]=0
@@ -328,7 +332,7 @@ class mp3(QtGui.QMainWindow):
             self.musicList.addItem(itm);
         if album == self.settings["album"]:
             self.musicList.setCurrentRow(self.settings["song"])
-        self.stack.setCurrentIndex(2)
+        self.parent.setPage(self.stack, 2)
 
     #################################
     # Get all Albums in path        #

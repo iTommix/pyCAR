@@ -4,9 +4,9 @@ import sys, os, json, time, dbus
 from xml.dom import minidom
 
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
-form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
+#form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
 
-class a2dp(QtGui.QMainWindow, form_class):
+class a2dp(QtGui.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
         QtGui.QWidget.__init__(self, parent)
@@ -17,7 +17,6 @@ class a2dp(QtGui.QMainWindow, form_class):
         self.path = self.settings["a2dpPath"]
         self.musicSlider.setEnabled(False)
         self.btn_Select.clicked.connect(lambda: self.showBrowser())
-        self.slideback.clicked.connect(lambda: self.stack.setCurrentIndex(0))
         self.musicList.itemClicked.connect(self.select)
         self.musicList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}")
         self.btn_Repeat.clicked.connect(lambda: self.setProperties("repeat"))
@@ -67,8 +66,7 @@ class a2dp(QtGui.QMainWindow, form_class):
 
     def showBrowser(self):
         self.browser()
-        #self.parent.startSlide("left", self.frame)
-        self.stack.setCurrentIndex(1)
+        self.parent.setPage(self.stack, 1)
     
     def function(self, function):
         device=self.parent.mobile.getConnectedDevice()
@@ -201,7 +199,7 @@ class a2dp(QtGui.QMainWindow, form_class):
         if playable=="1":
             player = dbus.Interface(bus.get_object('org.bluez', path), 'org.bluez.MediaItem1')
             player.Play()
-            self.frame.setGeometry(QtCore.QRect(0, 0, self.frame.width(), 480))
+            self.parent.setPage(self.stack, 0)
         else:
             if path=="-":
                 path=self.path

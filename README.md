@@ -7,6 +7,8 @@ typora-root-url: ../pyCAR
 
 ![Splash-Screen](/install/splash.png)
 
+For a change log [see Wiki](https://github.com/iTommix/pyCAR/wiki)
+
 ### My Hardware-Configuration:
 
 - Raspberry Pi 3B+, Raspios buster
@@ -32,8 +34,8 @@ I disabled the internal BT from Raspberry, because it wont work properly.
 
 ### Install:
 
-1. Write a fresh Raspios on a SD-Card (2020-05-27-raspios-buster-armhf.img)
-2. After first boot configure localizations and timezone with raspi-config, reboot.
+1. Write a fresh Raspios on a SD-Card (2020-05-27-raspios-buster-armhf.img or 2020-05-27-raspios-buster-lite-armhf.img)
+2. After first boot configure localizations and timezone with raspi-config. **On a headless (lite) system (without Desktop) select to boot into CLI with automatic login**. Reboot.
 3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
 4. Change to the install folder <code>cd pyCAR/install</code>
 5. Execute the Installscript <code>./install.sh</code>
