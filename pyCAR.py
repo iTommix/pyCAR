@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from PyQt4 import QtCore, QtGui, uic
-import sys, platform, os, importlib, alsaaudio, gpsd, datetime, json, time 
+import sys, platform, os, importlib, alsaaudio, gpsd, datetime, json, time, signal
 from xml.dom import minidom
 from functools import partial
 from subprocess import call
@@ -56,6 +56,8 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.timer.start(1000)
 
     def closeEvent(self, event):
+        if self.modules.get("navit"):
+            os.kill(self.modules["navit"]["instance"].pid, signal.SIGINT)
         self.saveConfig()
         event.accept()
 
@@ -407,10 +409,10 @@ class pyCAR(QtGui.QMainWindow, form_class):
 
 def main():
     app = QtGui.QApplication(sys.argv)
+    screen = app.desktop().screenGeometry()
     form = pyCAR()
-    if len(sys.argv)>1:
-        if sys.argv[1]=="fullscreen":
-            form.showFullScreen()
+    if screen.width()==800 and screen.height()==480:
+        form.showFullScreen()
     else:
         form.show()
     sys.exit(app.exec_())

@@ -1,6 +1,6 @@
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
-import subprocess, time, os, sys
+import subprocess, time, os, sys, signal
 from PyQt4 import QtCore, QtGui, uic
 from espeak import espeak
 
@@ -14,13 +14,13 @@ class navit(QtGui.QMainWindow):
         self.stack = None
         self.lastSpeech = None
         process = subprocess.Popen(['navit'],stdout=subprocess.PIPE, shell=True)
-        pid = str(process.pid)
+        self.pid = process.pid+1
         cmd='xwininfo -name \'Navit\' | sed -e \'s/^ *//\' | grep -E "Window id" | awk \'{ print $4 }\''
         self.wid='';
         while self.wid=="" :
             proc = subprocess.check_output(cmd, shell=True)
             self.wid=proc.decode("utf-8").replace("\n","");
-    
+        
     def focus(self):
         if self.lastSpeech != None:
             self.speech(self.lastSpeech)
