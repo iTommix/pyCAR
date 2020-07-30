@@ -1,6 +1,8 @@
 #!/bin/bash
-#unclutter
-#cp ../install/etc/.asoundrc ../
+xset s off         # don't activate screensaver
+xset -dpms         # disable DPMS (Energy Star) features.
+xset s noblank     # don't blank the video device
+unclutter &
 pa=$(pidof pulseaudio)
 if test -z "$pa"
 then

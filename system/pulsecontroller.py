@@ -32,33 +32,30 @@ class Pulsecontroller():
         self.setFader(self.settings["fader"])
         self.setBalance(self.settings["balance"])
         # Setup Soundcard
-        for card in pulse.card_list():
-            if card.index == self.settings["card"]:
-                for profile in card.profile_list:
-                    if profile.description == self.settings["profile"]:
-                        pulse.card_profile_set(card, profile)
-                for port in card.port_list:
-                    if port.description == self.settings["port"]:
-                        #pulse.port_set(card, port)
-                        pass
-        # Setup Volume for all streams 
-        for module in self.parent.modules:
-            try:
-                if self.parent.modules[module]["instance"].settings["volume"]:
-                    self.setVolume(module)
-            except:
-                pass
-                        
-    def setVolume(self, module):
+        
+        self.setProfile(self.settings["card"], self.settings["profile"])
+        self.setPort(self.settings["card"], self.settings["port"])
+
         for sink in pulse.sink_list():
             if sink.proplist["device.class"] == "filter":
                 equalizerID = sink.index
-        
+
+        # Setup Volume for all streams and move to equalizer
+        for module in self.parent.modules:
+            if module != "pyCAR" and self.parent.modules[module]["instance"].settings.get("volume"):
+                for sink in pulse.sink_input_list():
+                    try:
+                        if sink.proplist[volume["property"]] == volume["identyfier"]: 
+                            pulse.sink_input_move(sink.index, equalizerID)
+                    except:
+                        pass
+                self.setVolume(module)
+                        
+    def setVolume(self, module):
         volume = self.parent.modules[module]["instance"].settings["volume"]
         for sink in pulse.sink_input_list():
             try:
                 if sink.proplist[volume["property"]] == volume["identyfier"]:
-                    pulse.sink_input_move(sink.index, equalizerID)
                     pulse.volume_set_all_chans(sink, volume["value"]/100)
             except:
                 pass
@@ -83,7 +80,9 @@ class Pulsecontroller():
             
         print(r , l)
         volume = PulseVolumeInfo([l, r])
-        pulse.volume_set(pulse.sink_list()[self.settings["card"]], volume)
+        for sink in pulse.sink_list():
+            if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == self.settings["card"]:
+                pulse.volume_set(sink, volume)
         
     def setFader(self, fader):
         if self.max9744:
@@ -116,4 +115,39 @@ class Pulsecontroller():
         if self.loweredModule != None:
             self.setVolume(self.loweredModule)
         
+        
+    def getCards(self):
+        cards=[]
+        for card in pulse.card_list():
+            c={"card": card, "props": card.proplist}
+            cards.append(c)
+        return cards
+    
+    def getProfiles(self, alsaName):
+        for card in pulse.card_list():
+            if card.proplist.get("alsa.card_name") and card.proplist["alsa.card_name"] == alsaName:
+                return card.profile_list
+                
+    def getPorts(self, alsaName):
+        for sink in pulse.sink_list():
+            if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == alsaName:
+                return sink.port_list
             
+    def setProfile(self, alsaName, profileName):
+        self.settings["card"] = alsaName
+        self.settings["profile"] = profileName
+        for card in pulse.card_list():
+            if card.proplist.get("alsa.card_name") and card.proplist["alsa.card_name"] == alsaName:
+                for profile in card.profile_list:
+                    if profile.description == profileName:
+                        pulse.card_profile_set(card, profile)
+                        
+    def setPort(self, alsaName, portName):
+        self.settings["port"] = portName
+        for sink in pulse.sink_list():
+            if sink.proplist.get("alsa.card_name"):
+                if sink.proplist["alsa.card_name"] == alsaName:
+                    for port in sink.port_list:
+                        if port.description == portName:
+                            pulse.port_set(sink, port)
+        

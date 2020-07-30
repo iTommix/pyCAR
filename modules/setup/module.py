@@ -101,9 +101,9 @@ class setup(QtGui.QMainWindow):
         self.btnBTAuto.setEnabled(False)
         self.tblBTDevices.itemClicked.connect(self.btDeviceChanged)
 
-        self.soundcards.activated.connect(self.getMixer)
-        self.cardprofile.activated.connect(self.setProfile)
-        self.cardmixer.activated.connect(self.setMixer)
+        self.cardList.itemSelectionChanged.connect(self.getProfiles)
+        self.profileList.itemSelectionChanged.connect(self.getPorts)
+        self.portList.itemSelectionChanged.connect(self.setPort)
 
         if self.settings["bt_auto"]:
             self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_on.png);background-repeat: none; border: 0px;")
@@ -111,7 +111,7 @@ class setup(QtGui.QMainWindow):
             
         
         
-        #self.getSoundcards()
+        
         self.btDevices={}
         
         self.timer = QtCore.QTimer()
@@ -230,71 +230,44 @@ class setup(QtGui.QMainWindow):
         ges = str(int(disk.total/1024/1024))
         use = str(int(disk.used/1024/1024))
         self.lblDisk2.setText(str(int(disk.percent)) + "% ("+use+" MB) von "+ges+" MB genutzt")
+        
+        self.getSoundcards()
 
     def getSoundcards(self):
-        current = 0
-        i=0
-        for z in reversed(alsaaudio.card_indexes()):
-            (name, longname) = alsaaudio.card_name(i)
-            #print("  %d: %s (%s)" % (i, name, longname))
-            self.soundcards.addItem(name, z)
-            if self.settings["card"] == name:
-                current=i
-            i=i+1
-        self.soundcards.setCurrentIndex(current)
-        self.getMixer()
-            
-    def getProfile(self):
-        self.cardprofile.clear()
-        i=0
-        for z in reversed(alsaaudio.card_indexes()):
-            card = pulse.card_list()[i]
-            (name, longname) = alsaaudio.card_name(z)
-            if name == self.soundcards.currentText():
-                index = 0
-                for profile in card.profile_list:
-                    self.cardprofile.addItem(profile.description)
-                    if profile.description == self.settings["profile"]:
-                        pulse.card_profile_set(self.selectedCard, self.selectedCard.profile_list[index])
-                        self.selectedProfile = index
-                    index = index+1
-            i=i+1
-        self.cardprofile.setCurrentIndex(self.selectedProfile)
+        cards=self.parent.pa.getCards()
+        for index, card in enumerate(cards):
+            if card["props"].get("alsa.card_name"):
+                itm = QtGui.QListWidgetItem(card["props"]["alsa.card_name"])
+                self.cardList.addItem(itm)
+                if card["props"]["alsa.card_name"] == self.parent.pa.settings["card"]:
+                    self.cardList.setCurrentRow(index)
         
-    def setProfile(self):
-        #print(self.selectedCard)
-        pulse.card_profile_set(self.selectedCard, self.selectedCard.profile_list[self.cardprofile.currentIndex()])
+    def getProfiles(self):
+        self.profileList.clear()
+        profiles = self.parent.pa.getProfiles(self.cardList.currentItem().text())
+        for index, profile in enumerate(profiles):
+            itm = QtGui.QListWidgetItem(profile.description)
+            self.profileList.addItem(itm)
+            if profile.description == self.parent.pa.settings["profile"]:
+                self.profileList.setCurrentRow(index)
+        self.getPorts()
+        
+    def getPorts(self):
+        self.portList.clear()
+        try:
+            self.parent.pa.setProfile(self.cardList.currentItem().text(), self.profileList.currentItem().text())
+            ports = self.parent.pa.getPorts(self.cardList.currentItem().text())
+            for index, port in enumerate(ports):
+                itm = QtGui.QListWidgetItem(port.description)
+                self.portList.addItem(itm)
+                if port.description == self.parent.pa.settings["port"]:
+                    self.portList.setCurrentRow(index)
+        except:
+            pass
     
-    def setMixer(self):
-        self.parent.volume.setMixer(self.cardmixer.currentText())
-    
-    def getMixer(self):
-        i=0
-        selected=0
-        for z in reversed(alsaaudio.card_indexes()):
-            card = pulse.card_list()[i]
-            (name, longname) = alsaaudio.card_name(z)
-            if name == self.soundcards.currentText():
-                #pulse.card_profile_set(card, card.profile_list[self.selectedProfile])
-                self.selectedCard = card
-                selected = z
-            else:
-                pulse.card_profile_set(card, 'off')
-            i=i+1
-
-        self.cardmixer.clear()
-        current = 0
-        i = 0
-        for name in alsaaudio.mixers(selected):
-            #print("  '%s'" % name)
-            if self.settings["mixer"] == name:
-                current=i
-                self.parent.volume.setMixer(name)
-            self.cardmixer.addItem(name)
-            i=i+1
-        self.cardmixer.setCurrentIndex(current)
-        self.getProfile()
-            
+    def setPort(self):
+        self.parent.pa.setPort(self.cardList.currentItem().text(), self.portList.currentItem().text())
+        
     
     def setAuto(self):
         if self.settings["bt_auto"]:
