@@ -101,9 +101,10 @@ class setup(QtGui.QMainWindow):
         self.btnBTAuto.setEnabled(False)
         self.tblBTDevices.itemClicked.connect(self.btDeviceChanged)
 
-        self.cardList.itemSelectionChanged.connect(self.getProfiles)
+        self.cardList.itemClicked.connect(self.setCard)
         self.profileList.itemSelectionChanged.connect(self.getPorts)
-        self.portList.itemSelectionChanged.connect(self.setPort)
+        self.portList.itemClicked.connect(lambda: self.setPort("sink"))
+        self.sourceList.itemClicked.connect(lambda: self.setPort("source"))
 
         if self.settings["bt_auto"]:
             self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_on.png);background-repeat: none; border: 0px;")
@@ -231,9 +232,20 @@ class setup(QtGui.QMainWindow):
         use = str(int(disk.used/1024/1024))
         self.lblDisk2.setText(str(int(disk.percent)) + "% ("+use+" MB) von "+ges+" MB genutzt")
         
+        
+        
+    def soundSettings(self):
         self.getSoundcards()
+        self.getProfiles()
+        
+    def setCard(self):
+        self.parent.pa.settings["profile"] = ""
+        self.parent.pa.settings["port"]["sink"] = ""
+        self.parent.pa.settings["port"]["source"] = ""
+        self.getProfiles()       
 
     def getSoundcards(self):
+        self.cardList.clear()
         cards=self.parent.pa.getCards()
         for index, card in enumerate(cards):
             if card["props"].get("alsa.card_name"):
@@ -253,20 +265,31 @@ class setup(QtGui.QMainWindow):
         self.getPorts()
         
     def getPorts(self):
+        ### SINKS ###
         self.portList.clear()
-        try:
-            self.parent.pa.setProfile(self.cardList.currentItem().text(), self.profileList.currentItem().text())
-            ports = self.parent.pa.getPorts(self.cardList.currentItem().text())
+        self.parent.pa.setProfile(self.cardList.currentItem().text(), self.profileList.currentItem().text())
+        ports = self.parent.pa.getPorts(self.cardList.currentItem().text())
+        if ports != None:    
             for index, port in enumerate(ports):
                 itm = QtGui.QListWidgetItem(port.description)
                 self.portList.addItem(itm)
                 if port.description == self.parent.pa.settings["port"]:
                     self.portList.setCurrentRow(index)
-        except:
-            pass
+
+        ### SOURCES ###
+        self.sourceList.clear()
+        sources = self.parent.pa.getSource(self.cardList.currentItem().text())
+        if sources != None:
+            for source in sources:
+                itm = QtGui.QListWidgetItem(source.description)
+                self.sourceList.addItem(itm)
     
-    def setPort(self):
-        self.parent.pa.setPort(self.cardList.currentItem().text(), self.portList.currentItem().text())
+    def setPort(self, pType):
+        if pType == "sink":
+            port = self.portList.currentItem().text()
+        else:
+            port = self.sourceList.currentItem().text()
+        self.parent.pa.setPort(pType, self.cardList.currentItem().text(), port)
         
     
     def setAuto(self):
@@ -443,13 +466,15 @@ class setup(QtGui.QMainWindow):
             self.connectMobile()
             
     def reboot(self):
+        self.parent.saveConfig()
         call("sudo reboot", shell=True)          
             
     def shutdown(self):
+        self.parent.saveConfig()
         call("sudo shutdown -h now", shell=True)
         
     def quit(self):
-        call("sudo killall navit &", shell=True)
+        self.parent.saveConfig()
         exit()
         
         

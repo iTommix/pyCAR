@@ -56,8 +56,6 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.timer.start(1000)
 
     def closeEvent(self, event):
-        if self.modules.get("navit"):
-            os.kill(self.modules["navit"]["instance"].pid, signal.SIGINT)
         self.saveConfig()
         event.accept()
 
@@ -70,7 +68,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
             self.mainFrame.setCurrentIndex(self.modules[self.player]["deck"])
             if self.modules[self.player]["instance"] != self :
                 self.active = self.player
-                self.volume.setVolume(self.modules[self.player]["instance"].settings["volume"])
+                self.pa.setVolume(self.player)
                 self.modules[self.player]["instance"].play()
         else:
             self.mainFrame.setCurrentIndex(0)
@@ -337,6 +335,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
         #count-=1
         pa = self.setup.getElementsByTagName('pulseaudio')[0]
         self.pa.load(json.loads(pa.firstChild.data))
+        self.modules["setup"]["instance"].soundSettings()
         
     def getButton(self, name, labelText, deck):
         font = QtGui.QFont()
@@ -366,6 +365,8 @@ class pyCAR(QtGui.QMainWindow, form_class):
         return sortedMods
         
     def saveConfig(self):
+        if self.modules.get("navit"):
+            os.kill(self.modules["navit"]["instance"].pid, signal.SIGINT)
         modules = self.setup.getElementsByTagName('module')
         for module in modules:
             if module.attributes["enabled"].value == "1":

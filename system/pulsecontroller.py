@@ -7,6 +7,8 @@ from gi.repository import GLib
 pulse = Pulse('pyCAR')
 mute = ["on", "off"]
 maxVol=45
+cardID = None
+equalizerID = None
 
 class Pulsecontroller():
     
@@ -27,29 +29,24 @@ class Pulsecontroller():
         
     def load(self, setup):
         self.settings = setup
-        cmd = "/usr/bin/amixer -M set "+self.settings["alsa"]+" 100%"
+        cmd = "/usr/bin/amixer -M set "+self.settings["alsaout"]+" 100%"
         call(cmd, shell=True)
         self.setFader(self.settings["fader"])
         self.setBalance(self.settings["balance"])
         # Setup Soundcard
         
         self.setProfile(self.settings["card"], self.settings["profile"])
-        self.setPort(self.settings["card"], self.settings["port"])
-
-        for sink in pulse.sink_list():
-            if sink.proplist["device.class"] == "filter":
-                equalizerID = sink.index
-            if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == self.settings["card"]:
-                cardID = sink.index
+        self.setPort("sink", self.settings["card"], self.settings["port"]["sink"])
+        self.setPort("source", self.settings["card"], self.settings["port"]["source"])
+        #self.setEqualizer()
+        
+        
 
         # Setup Volume for all streams and move to equalizer
         for module in self.parent.modules:
-            print(module)
             if module != "pyCAR" and self.parent.modules[module]["instance"].settings.get("volume"):
                 volume = self.parent.modules[module]["instance"].settings["volume"]
                 for sink in pulse.sink_input_list():
-                    if sink.proplist.get("media.role") and sink.proplist["media.role"]=="filter":
-                        pulse.sink_input_move(sink.index, cardID)
                     try:
                         if sink.proplist[volume["property"]] == volume["identyfier"]:
                             pulse.sink_input_move(sink.index, equalizerID)
@@ -65,7 +62,6 @@ class Pulsecontroller():
                     pulse.volume_set_all_chans(sink, volume["value"]/100)
             except:
                 pass
-            
             
     def mute(self):
         pulse.mute(pulse.sink_list()[self.settings["card"]], not pulse.sink_list()[self.settings["card"]].mute)
@@ -139,6 +135,11 @@ class Pulsecontroller():
             if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == alsaName:
                 return sink.port_list
             
+    def getSource(self, alsaName):
+        for source in pulse.source_list():
+            if source.proplist.get("alsa.card_name") and source.proplist["alsa.card_name"] == alsaName and source.proplist["device.class"] == "sound":
+                return source.port_list
+            
     def setProfile(self, alsaName, profileName):
         self.settings["card"] = alsaName
         self.settings["profile"] = profileName
@@ -148,11 +149,28 @@ class Pulsecontroller():
                     if profile.description == profileName:
                         pulse.card_profile_set(card, profile)
                         
-    def setPort(self, alsaName, portName):
-        self.settings["port"] = portName
-        for sink in pulse.sink_list():
-            if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == alsaName:
-                for port in sink.port_list:
+    def setPort(self, plist, alsaName, portName):
+        print(plist)
+        self.settings["port"][plist] = portName
+        if plist == "sink":
+            pulseList = pulse.sink_list()
+        else:
+            pulseList = pulse.source_list()
+        
+        for item in pulseList:
+            if item.proplist.get("alsa.card_name") and item.proplist["alsa.card_name"] == alsaName:
+                for port in item.port_list:
                     if port.description == portName:
-                        pulse.port_set(sink, port)
+                        pulse.port_set(item, port)
+        self.setEqualizer()
+    
+    def setEqualizer(self):
+        for sink in pulse.sink_list():
+            if sink.proplist["device.class"] == "filter":
+                equalizerID = sink.index
+            if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == self.settings["card"]:
+                cardID = sink.index
+        for sink in pulse.sink_input_list():
+            if sink.proplist.get("media.role") and sink.proplist["media.role"]=="filter" and cardID != None:
+                pulse.sink_input_move(sink.index, cardID)
         
