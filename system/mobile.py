@@ -14,19 +14,6 @@ class mobile():
         self.parent=None
         self.connectedDevice=""
         self.phonebook=0
-        self.mic=False
-        
-
-    def setMicActive(self, status):
-        if status==True:
-            if self.mic == False:
-                self.mic=True
-                call("amixer set Capture cap", shell=True)
-                #call('pactl load-module module-loopback source=bluez_source.3C_2E_FF_1D_93_41.headset_audio_gateway sink=alsa_output.platform-soc_sound.stereo-fallback.echo-cancel adjust_time=1 latency_msec=50 source_dont_move=true sink_input_properties="media.role=phone"', shell=True)
-                #call('pactl load-module module-loopback source=alsa_input.platform-soc_sound.stereo-fallback.echo-cancel sink=bluez_sink.3C_2E_FF_1D_93_41.headset_audio_gateway adjust_time=1 latency_msec=50 sink_dont_move=true source_output_properties="media.role=phone"', shell=True)
-        else:
-            self.mic=False
-            call("amixer set Capture nocap", shell=True)
        
     def pair(self, mac):
         try:

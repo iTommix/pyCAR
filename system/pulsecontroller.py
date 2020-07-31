@@ -7,14 +7,16 @@ from gi.repository import GLib
 pulse = Pulse('pyCAR')
 mute = ["on", "off"]
 maxVol=45
-cardID = None
-equalizerID = None
+
 
 class Pulsecontroller():
     
     def __init__(self, parent):
         self.loweredModule = None
         self.parent = parent
+        self.cardID = None
+        self.equalizerID = None
+        self.microphoneID = None
         i2c = smbus.SMBus(1)
         try:
             i2c.read_byte(0x4A)
@@ -38,8 +40,8 @@ class Pulsecontroller():
         self.setProfile(self.settings["card"], self.settings["profile"])
         self.setPort("sink", self.settings["card"], self.settings["port"]["sink"])
         self.setPort("source", self.settings["card"], self.settings["port"]["source"])
-        #self.setEqualizer()
-        
+        self.setMicVolume(self.settings["microphone"])
+        self.setMicActive(False)
         
 
         # Setup Volume for all streams and move to equalizer
@@ -49,7 +51,7 @@ class Pulsecontroller():
                 for sink in pulse.sink_input_list():
                     try:
                         if sink.proplist[volume["property"]] == volume["identyfier"]:
-                            pulse.sink_input_move(sink.index, equalizerID)
+                            pulse.sink_input_move(sink.index, self.equalizerID)
                     except:
                         pass
                 self.setVolume(module)
@@ -63,10 +65,23 @@ class Pulsecontroller():
             except:
                 pass
             
+    
+    def setMicVolume(self, volume):
+        self.settings["microphone"]=volume
+        for source in pulse.source_list():
+            if source.proplist.get("alsa.card_name") and source.proplist["alsa.card_name"] == self.settings["card"] and source.proplist["device.class"] == "sound":
+                pulse.volume_set_all_chans(source, volume/100)
+                self.microphoneID = source.index
+    
+    def setMicActive(self, status):
+        print(status)
+        pulse.mute(pulse.source_list()[self.microphoneID], not status)
+            
+            
     def mute(self):
-        pulse.mute(pulse.sink_list()[self.settings["card"]], not pulse.sink_list()[self.settings["card"]].mute)
+        pulse.mute(pulse.sink_list()[self.cardID], not pulse.sink_list()[self.cardID].mute)
         button=self.parent.findChild(QtGui.QToolButton, "btnMute")
-        button.setStyleSheet("background-image: url(./images/mute_"+str(mute[pulse.sink_list()[self.settings["card"]].mute])+".png);background-repeat: none; border: 0px;")
+        button.setStyleSheet("background-image: url(./images/mute_"+str(mute[pulse.sink_list()[self.cardID].mute])+".png);background-repeat: none; border: 0px;")
             
     def setBalance(self, balance):
         self.settings["balance"]=balance
@@ -166,11 +181,12 @@ class Pulsecontroller():
     
     def setEqualizer(self):
         for sink in pulse.sink_list():
-            if sink.proplist["device.class"] == "filter":
-                equalizerID = sink.index
+            if "FFT based equalizer" in sink.description:
+                self.equalizerID = sink.index
             if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == self.settings["card"]:
-                cardID = sink.index
+                self.cardID = sink.index
         for sink in pulse.sink_input_list():
-            if sink.proplist.get("media.role") and sink.proplist["media.role"]=="filter" and cardID != None:
-                pulse.sink_input_move(sink.index, cardID)
+            if not sink.proplist.get("media.role") or (sink.proplist.get("media.role") and sink.proplist["media.role"] != "filter"):
+                pulse.sink_input_move(sink.index, self.equalizerID)
+            
         

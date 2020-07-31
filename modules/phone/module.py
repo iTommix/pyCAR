@@ -16,7 +16,7 @@ class phone(QtGui.QMainWindow, form_class):
         self.callPath=None
         self.path=None
         self.phoneBookLoaded=False
-        
+        self.micActive = False
         
     def loaded(self):
         self.timer = QtCore.QTimer()
@@ -92,13 +92,9 @@ class phone(QtGui.QMainWindow, form_class):
         bus = dbus.SystemBus()
         if self.call==0:
             self.parent.stopPlayer()
-            
-            
             self.hideButtonsOnCall(True)
             self.parent.volume.setVolume(self.settings["volume"], False)
-            
-            
-            
+
             print("Call to " + self.lblPhoneNumber.text())
             manager = dbus.Interface(bus.get_object('org.ofono', '/'), 'org.ofono.Manager')
             modems = manager.GetModems()
@@ -120,7 +116,8 @@ class phone(QtGui.QMainWindow, form_class):
             
     def endCall(self):
         self.call=0
-        self.parent.mobile.setMicActive(False)
+        self.micActive = False
+        self.parent.pa.setMicActive(False)
         self.btnCallNumber.setIcon(QIcon("./images/call.png"));
         self.hideButtonsOnCall(False)
         #self.btnCallNumber.setStyleSheet("background-image: url(./images/call.png);background-repeat: none;border: 0px;")
@@ -132,11 +129,9 @@ class phone(QtGui.QMainWindow, form_class):
         bus = dbus.SystemBus()
         call = dbus.Interface(bus.get_object('org.ofono', self.path),'org.ofono.VoiceCall')
         if mode=='answer':
-            self.parent.mobile.setMicActive(True)
             call.Answer()
             self.call=1
         else:
-            self.parent.mobile.setMicActive(False)
             call.Hangup()
             
     
@@ -162,7 +157,9 @@ class phone(QtGui.QMainWindow, form_class):
                 print(callState)
                 if callState=='active':
                     self.call=1
-                    self.parent.mobile.setMicActive(True)
+                    if self.micActive == False:
+                        self.micActive = True
+                        self.parent.pa.setMicActive(True)
                 if callState=='incoming':
                     if self.call==0: self.parent.stopPlayer()
                     self.call=1
