@@ -1,0 +1,22 @@
+sudo chmod 646  /sys/class/backlight/rpi_backlight/bl_power
+sudo echo -e 'discoverable on' | bluetoothctl
+if test -z "$SSH_CONNECTION"
+then
+	cd pyCAR
+	pa=$(pidof pulseaudio)
+	if [[ ! -z $pa ]]
+	then
+		pulseaudio -k
+	fi
+	x=$(pidof Xorg)
+	if test -z "$x"
+	then
+		startx
+		feh -F /usr/share/plymouth/themes/pix/splash.png
+		xset -display :0 s off
+		xset -display :0 -dpms
+		xset -display :0 s noblank
+	else
+		./pyCAR.py
+	fi
+fi
