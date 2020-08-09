@@ -1,26 +1,26 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from PyQt4 import QtCore, QtGui, uic
+#from PyQt4 import QtCore, QtGui, uic
+#from PyQt5 import uic
+from PyQt5 import QtGui, QtWidgets, uic
 import sys, platform, os, importlib, alsaaudio, gpsd, datetime, json, time, signal
 from xml.dom import minidom
 from functools import partial
 from subprocess import call
 from system.mobile import *
-#import system.volume as volume
 import system.pulsecontroller as pulsecontroller
 from system.QTWidgets import *
-#import system.dialog as dialog
+
 
 sys.modules["QTWidgets"]=QTWidgets
 path=os.path.dirname(os.path.abspath( __file__ ))
 form_class = uic.loadUiType("./system/gui.ui")[0]
 
-class pyCAR(QtGui.QMainWindow, form_class):
+class pyCAR(QtWidgets.QMainWindow, form_class):
 
     def __init__(self):
         super(self.__class__, self).__init__()
         self.setupUi(self)
-        self.frame.installEventFilter(self)
         self.modules={}
         self.pages = []
         self.setup = minidom.parse('./system/config.xml')
@@ -28,8 +28,6 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.modules["pyCAR"]={}
         self.modules["pyCAR"]["deck"]=0
         self.modules["pyCAR"]["instance"]=self
-        #self.volume = volume
-        #self.volume.parent = self
         
         self.pa = pulsecontroller.Pulsecontroller(self)
         
@@ -58,10 +56,6 @@ class pyCAR(QtGui.QMainWindow, form_class):
     def closeEvent(self, event):
         self.saveConfig()
         event.accept()
-
-    def eventFilter(self, source, event):
-        #print(source, event, event.type())
-        return QtGui.QWidget.eventFilter(self, source, event)
     
     def resume(self):
         if self.player != None :
@@ -95,7 +89,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
                         time.sleep(0.3)
                     self.player = module
                     self.modules["setup"]["instance"].equalizer.load_profile(self.player)
-                    #self.volume.setVolume(self.modules[self.player]["instance"].settings["volume"])
+                    self.pa.setVolume(self.player)
                     self.modules[module]["instance"].play()
                 
                     
@@ -186,19 +180,20 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.volumeViewTimer.stop()
 
     def volumeViewSetup(self):
+    
         font = QtGui.QFont('SansSerif', 15, QtGui.QFont.Bold)
-        self.volumeView = QtGui.QWidget(self)
+        self.volumeView = QtWidgets.QWidget(self)
         self.volumeView.setGeometry(QtCore.QRect(290, 120, 320, 180))
         self.volumeView.setObjectName("volumeView")
         self.volumeView.setStyleSheet("background-image: url(./images/volumeViewBG.png); border-radius: 10px;")
         
-        self.volumeLabel=QtGui.QLabel(self.volumeView)
+        self.volumeLabel=QtWidgets.QLabel(self.volumeView)
         self.volumeLabel.setGeometry(QtCore.QRect(0, 0, 320, 40))
         self.volumeLabel.setStyleSheet("color: #fff; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 0;border-bottom-left-radius: 0;background-image: none; background-color: #000")
         self.volumeLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.volumeLabel.setFont(font)       
         
-        self.volumeSlider = QtGui.QProgressBar(self.volumeView)
+        self.volumeSlider = QtWidgets.QProgressBar(self.volumeView)
         self.volumeSlider.setGeometry(QtCore.QRect(10, 80, 300, 22))
         self.volumeSlider.setMaximum(100)
         self.volumeSlider.setValue(30)
@@ -210,13 +205,13 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.volumeViewTimer.timeout.connect(self.hideVolumeView)
 
 
-        self.dialogView = QtGui.QWidget(self)
+        self.dialogView = QtWidgets.QWidget(self)
         self.dialogView.setGeometry(QtCore.QRect(290, 120, 320, 180))
         self.dialogView.setObjectName("dialogView")
         self.dialogView.setStyleSheet("background-image: url(./images/volumeViewBG.png); border-radius: 10px;")
         self.dialogView.hide()
         
-        self.dialogTitle=QtGui.QLabel(self.dialogView)
+        self.dialogTitle=QtWidgets.QLabel(self.dialogView)
         #self.dialogTitle.setContentsMargins(0,5,0,5)
         self.dialogTitle.setGeometry(QtCore.QRect(0, 0, 320, 40))
         self.dialogTitle.setStyleSheet("color: #fff; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 0;border-bottom-left-radius: 0;background-image: none; background-color: #000")
@@ -224,7 +219,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.dialogTitle.setFont(font)
         
         font = QtGui.QFont('SansSerif', 15)
-        self.dialogMessage=QtGui.QLabel(self.dialogView)
+        self.dialogMessage=QtWidgets.QLabel(self.dialogView)
         self.dialogMessage.setWordWrap(True)
         self.dialogMessage.setContentsMargins(5,5,5,5)
         self.dialogMessage.setGeometry(QtCore.QRect(0, 50, 320, 80))
@@ -234,7 +229,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
         self.dialogMessage.setFont(font)
         self.dialogMessage.setVisible(False)
         
-        self.dialogProgress = QtGui.QProgressBar(self.dialogView)
+        self.dialogProgress = QtWidgets.QProgressBar(self.dialogView)
         self.dialogProgress.setGeometry(60, 135, 200, 20)
         self.dialogProgress.setVisible(False)
 
@@ -272,7 +267,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
         count = len(self.modules)
         
         self.container.setParent(None)
-        self.container = QtGui.QWidget(self.home)
+        self.container = QtWidgets.QWidget(self.home)
         self.container.setGeometry(QtCore.QRect(0, 169, 700, 311))
         grid = QGridLayout(self.container)
         modules = self.setup.getElementsByTagName('module')
@@ -299,14 +294,14 @@ class pyCAR(QtGui.QMainWindow, form_class):
                         stack.setStyleSheet("background-image: url(./modules/"+module.attributes["name"].value+"/skin.png); border: 0px;")
                         for page in range(1, pages+1):
                             if page > 1:
-                                backButton = QtGui.QToolButton(getattr(instance, "page"+str(page)))
+                                backButton = QtWidgets.QToolButton(getattr(instance, "page"+str(page)))
                                 backButton.setGeometry(QtCore.QRect(10, 10, 80, 50))
                                 backButton.setStyleSheet("background-image: url(./images/close.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
                                 backButton.clicked.connect(partial(getattr(self, 'pageBack'), stack)) 
                             stack.addWidget(getattr(instance, "page"+str(page)))
     
                         instance.stack = stack
-                        layout = QtGui.QHBoxLayout()
+                        layout = QtWidgets.QHBoxLayout()
                         layout.setContentsMargins(0, 0, 0, 0)
                         layout.addWidget(stack)
                         instance.centralwidget.setLayout(layout)
@@ -332,10 +327,12 @@ class pyCAR(QtGui.QMainWindow, form_class):
                             row=1
                     else:
                         column+=1
-        #count-=1
         pa = self.setup.getElementsByTagName('pulseaudio')[0]
         self.pa.load(json.loads(pa.firstChild.data))
         self.modules["setup"]["instance"].soundSettings()
+        for module in self.modules:
+            if hasattr(self.modules[module]["instance"], 'ready'):
+                self.modules[module]["instance"].ready()
         
     def getButton(self, name, labelText, deck):
         font = QtGui.QFont()
@@ -344,13 +341,13 @@ class pyCAR(QtGui.QMainWindow, form_class):
         button.setGeometry(QtCore.QRect(0, 0, 140, 110))
 
         # Add Image
-        image = QtGui.QToolButton(button)
+        image = QtWidgets.QToolButton(button)
         image.setGeometry(QtCore.QRect(30, 0, 80, 80))
         image.setStyleSheet("background-image: url(./modules/"+name+"/button.png);background-repeat: none; border-radius: 10px; border: 0px;background-position: center")
         image.clicked.connect(partial(getattr(self, 'switchModule'), deck))
             
         # Add Label
-        label=QtGui.QLabel(button)
+        label=QtWidgets.QLabel(button)
         label.setGeometry(QtCore.QRect(0, 90, 140, 20))
         label.setStyleSheet("color: #ffffff;")
         label.setAlignment(QtCore.Qt.AlignCenter)
@@ -365,11 +362,11 @@ class pyCAR(QtGui.QMainWindow, form_class):
         return sortedMods
         
     def saveConfig(self):
-        if self.modules.get("navit"):
-            os.kill(self.modules["navit"]["instance"].pid, signal.SIGINT)
         modules = self.setup.getElementsByTagName('module')
         for module in modules:
             if module.attributes["enabled"].value == "1":
+                if hasattr(self.modules[module.attributes["name"].value]["instance"], 'unload'):
+                    self.modules[module.attributes["name"].value]["instance"].unload()
                 try:
                     module.firstChild.data = json.dumps(self.modules[module.attributes["name"].value]["instance"].settings)
                 except:
@@ -378,6 +375,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
         pa.firstChild.data = json.dumps(self.pa.settings)
         with open("./system/config.xml", "w") as xml_file:
             self.setup.writexml(xml_file)
+        call(["pulseaudio -k"], shell=True)
     
 ########################################################################
 ##
@@ -409,7 +407,7 @@ class pyCAR(QtGui.QMainWindow, form_class):
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     screen = app.desktop().screenGeometry()
     form = pyCAR()
     if screen.width()==800 and screen.height()==480:

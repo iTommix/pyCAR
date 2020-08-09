@@ -1,15 +1,14 @@
-from PyQt4 import QtCore, QtGui, uic
-from PyQt4.QtGui import QIcon
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtGui import QIcon
 import sys, os, json, time, dbus
 from xml.dom import minidom
 
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
-#form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
 
-class a2dp(QtGui.QMainWindow):
+class a2dp(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         
         
         
@@ -166,14 +165,14 @@ class a2dp(QtGui.QMainWindow):
                 self.musicList.clear()
                 self.musicList.clearSelection()
                 if len(self.path.split("/"))>2:
-                    itm = QtGui.QListWidgetItem("Zurück");
+                    itm = QtWidgets.QListWidgetItem("Zurück");
                     itm.setIcon(QIcon("./images/folder_up.png"));
                     itm.setWhatsThis("-")
                     self.musicList.addItem(itm);
                 
                 for key in items.keys():
                     parts=os.path.split(os.path.abspath(items[key]["Name"]))
-                    itm = QtGui.QListWidgetItem(parts[1]);
+                    itm = QtWidgets.QListWidgetItem(parts[1]);
                     im="./images/folder.png"
                     if items[key]["Playable"]==True: im="./images/song.png"
                     itm.setIcon(QIcon(im));
@@ -221,11 +220,3 @@ class a2dp(QtGui.QMainWindow):
                 if 'player' in node.attributes['name'].value:
                     self.a2dpPlayer=node.attributes['name'].value        
         
-def main():
-    app = QtGui.QApplication(sys.argv)
-    form = pya2dp()
-    form.show()
-    sys.exit(app.exec_())
-    
-if __name__ == "__main__":
-    main()

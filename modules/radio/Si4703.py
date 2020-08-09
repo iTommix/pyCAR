@@ -1,15 +1,15 @@
-from PyQt4 import QtCore, QtGui, uic
-from PyQt4.QtGui import QIcon
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5.QtGui import QIcon
 import sys, os, json, time
 from modules.radio.radio import *
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
 form_class = uic.loadUiType(path[0]+"/"+path[1]+"/Si7403.ui")[0]
 
 
-class radio(QtGui.QMainWindow, form_class):
+class radio(QtWidgets.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.setupUi(self)
         self.control=control(self)
         self.focused=False
@@ -87,13 +87,3 @@ class radio(QtGui.QMainWindow, form_class):
         except:
             pass
 
-
-
-def main():
-    app = QtGui.QApplication(sys.argv)
-    form = pyradio()
-    form.show()
-    sys.exit(app.exec_())
-    
-if __name__ == "__main__":
-    main()

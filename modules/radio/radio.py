@@ -5,7 +5,7 @@ import json
 import socket
 import sys
 import threading
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 
 isMono = False
 rdsmsg = ""

@@ -1,6 +1,14 @@
+"""
 from PyQt4 import QtCore, QtGui, uic
 from PyQt4.QtGui import QIcon, QImage, QPixmap, QPalette, QBrush
 from PyQt4.QtCore import Qt
+"""
+
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QImage, QPixmap, QPalette, QBrush
+from PyQt5 import QtWidgets, QtCore
+
 import mplayer, sys, os, json, time, asyncio, mutagen, io, random
 from mutagen import File
 from mutagen.id3 import ID3
@@ -15,10 +23,10 @@ music={}
 
 
 
-class mp3(QtGui.QMainWindow):
+class mp3(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.mp3player = mplayer.Player()
         self.playTimer = QtCore.QTimer()
         self.playTimer.timeout.connect(lambda: self.setSlider())
@@ -43,59 +51,60 @@ class mp3(QtGui.QMainWindow):
         self.albumList.itemClicked.connect(lambda: self.getSongs())
         self.musicList.itemClicked.connect(lambda: self.selectAlbum())
         
+        self.albumList.setVerticalScrollMode(self.albumList.ScrollPerPixel)
+        self.musicList.setVerticalScrollMode(self.musicList.ScrollPerPixel)
+        
+        QtWidgets.QScroller.grabGesture(self.albumList.viewport(), QtWidgets.QScroller.LeftMouseButtonGesture)
+        QtWidgets.QScroller.grabGesture(self.musicList.viewport(), QtWidgets.QScroller.LeftMouseButtonGesture)
+        
+        self.musicList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:0px}");
+        self.albumList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:0px}");
+        
         self.btn_Play.clicked.connect(lambda: self.togglePlay())
         self.btn_Backward.clicked.connect(lambda: self.previous())
         self.btn_Forward.clicked.connect(lambda: self.next())
         
-        self.musicList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
-        self.albumList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
+        
         self.musicSlider.sliderReleased.connect(lambda: self.getSlider())
         self.musicSlider.valueChanged.connect(lambda: self.getSliderPos())
         
+
+    def ready(self): 
+        self.usbPath = self.parent.modules["setup"]["instance"].settings["usb"]+"/Music"
         self.getAlbums()
 
-        if os.path.isdir(self.settings["path"]+"/"+self.settings["album"]):
+    def focus(self):
+        pass
+    
+    def play(self):
+        if self.settings["album"] !="" and os.path.isdir(self.usbPath+"/"+self.settings["album"]):
             if self.settings["shuffle"]:
                 self.btn_Shuffle.setStyleSheet("background-image: url(./images/shuffle.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 2px solid #e42659;background-position: center")
             song = music[self.settings["album"]][self.settings["song"]]
             self.lbl_Artist.setText(song["artist"])
             self.lbl_Album.setText(song["album"])
             self.lbl_Title.setText(song["title"])
+            self.parent.setInfo(song["artist"], song["title"])
             self.mp3player.loadfile(song["path"])
-            self.btn_Like.setStyleSheet("background-image: url(./images/like_"+song["like"]+".png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
             self.mp3player.time_pos = self.settings["position"]
-            self.mp3player.pause()
+            self.musicSlider.setValue(int(self.settings["position"]))
+            self.playTimer.start(1000)
+            self.btn_Play.setStyleSheet("background-image: url(./images/pause.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
+            self.btn_Like.setStyleSheet("background-image: url(./images/like_"+song["like"]+".png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
             try:
                 self.lbl_Time_left.setText(self.parent.getSongLength(self.mp3player.length-self.mp3player.time_pos))
                 self.lbl_Time_pos.setText(self.parent.getSongLength(self.mp3player.time_pos))
                 self.musicSlider.setMaximum(int(self.mp3player.length)+1)
             except:
                 pass
-            self.musicSlider.setValue(int(self.settings["position"]))
             self.setBackground()
-
-
-
-    ############################################
-    # System related functions                 #
-    # These functions are expect by the System #
-    ############################################
-    def focus(self):
-        pass
-    
-    def play(self):
-        if self.mp3player.paused:
-            self.parent.setInfo(self.lbl_Artist.text(), self.lbl_Title.text())
-            self.mp3player.pause()
-            self.playTimer.start(1000)
-            self.btn_Play.setStyleSheet("background-image: url(./images/pause.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
+        
     
     def pause(self):
-        if not self.mp3player.paused: 
-            self.mp3player.pause()
-            self.playTimer.stop()
-            self.btn_Play.setStyleSheet("background-image: url(./images/play.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
-    
+        self.mp3player.stop()
+        self.playTimer.stop()
+        self.btn_Play.setStyleSheet("background-image: url(./images/play.png);background-repeat: none; background-color: #eeeeee; border-radius: 5px; border: 0px;background-position: center")
+            
     def stop(self):
         self.pause()
     
@@ -114,11 +123,12 @@ class mp3(QtGui.QMainWindow):
             self.playSong(self.settings["song"]-1)
     
     def togglePlay(self):
-        if self.mp3player.paused:
+        if self.mp3player.filename == None:
             print("play")
             self.play()
         else:
             self.pause()
+            
             
     def setShuffle(self):
         if self.settings["shuffle"]==0:     
@@ -252,6 +262,7 @@ class mp3(QtGui.QMainWindow):
     # Clears the labels if no song to play #
     ########################################
     def clearLabels(self):
+        self.parent.setInfo("", "")
         self.lbl_Artist.setText("")
         self.lbl_Album.setText("")
         self.lbl_Title.setText("")
@@ -263,7 +274,7 @@ class mp3(QtGui.QMainWindow):
     ###################################
     def setBackground(self):
         try: 
-            source = Image.open(self.settings["path"]+"/"+self.settings["album"]+"/covers/"+str(self.settings["song"])+".jpg")
+            source = Image.open(self.usbPath+"/"+self.settings["album"]+"/.covers/"+str(self.settings["song"])+".jpg")
             source=source.filter(ImageFilter.GaussianBlur(4))
             if source.width<700:
                 width=700
@@ -304,6 +315,8 @@ class mp3(QtGui.QMainWindow):
             pixmap = QPixmap()
             self.backgroundImage.setPixmap(pixmap)
 
+    
+
     #################################
     # Display songs from a Album    #
     #################################
@@ -313,10 +326,10 @@ class mp3(QtGui.QMainWindow):
         self.musicList.clear()
         self.musicList.clearSelection()
         for item in music[album]:
-            itm = QtGui.QListWidgetItem(music[album][item]["title"]);
-            if not os.path.isdir(self.settings["path"]+"/"+album+"/covers"):
-                os.mkdir(self.settings["path"]+"/"+album+"/covers", 777 )
-            image = self.settings["path"]+"/"+album+"/covers/"+str(item)+".jpg"
+            itm = QtWidgets.QListWidgetItem(music[album][item]["title"]);
+            if not os.path.isdir(self.usbPath+"/"+album+"/.covers"):
+                os.mkdir(self.usbPath+"/"+album+"/.covers", 777 )
+            image = self.usbPath+"/"+album+"/.covers/"+str(item)+".jpg"
             if not os.path.isfile(image):  
                 file = File(music[album][item]["path"]) # mutagen can automatically detect format and type of tags
                 try:
@@ -340,7 +353,7 @@ class mp3(QtGui.QMainWindow):
     def getAlbums(self):
         self.albumList.clear()
         self.albumList.clearSelection()
-        albums = self.getFiles(self.settings["path"], "dir")
+        albums = self.getFileList(self.usbPath)
         select = -1
         z=0
         for album in albums:
@@ -348,25 +361,25 @@ class mp3(QtGui.QMainWindow):
                 select = z
             music[album]={}
             f=0
-            files = self.getFiles(self.settings["path"]+"/"+album, "file")
+            files = self.getFileList(self.usbPath, album)
             for audio in files:
-                if audio.lower().endswith(".mp3") or audio.lower().endswith(".m4a"):
-                    m = File(audio)
-                    hr={"TIT2": "title", "TPE1": "artist", "TALB": "album", "TXXX:like": "like"}
-                    music[album][f] = {}
-                    for tag in ('TIT2', 'TPE1', 'TALB', 'TXXX:like'): #('title', 'artist', 'album'):
-                        try:
-                            music[album][f][hr[tag]] = str(m[tag])
-                        except:
-                            if tag=="TIT2": music[album][f]["title"] = audio
-                            if tag=="TPE1": music[album][f]["artist"] = "Unknown"
-                            if tag=="TALB": music[album][f]["album"] = album
-                            if tag=="TXXX:like": music[album][f]["like"] = "False"
+                audio = self.usbPath+"/"+album+"/"+audio
+                m = File(audio)
+                hr={"TIT2": "title", "TPE1": "artist", "TALB": "album", "TXXX:like": "like"}
+                music[album][f] = {}
+                for tag in ('TIT2', 'TPE1', 'TALB', 'TXXX:like'): #('title', 'artist', 'album'):
+                    try:
+                        music[album][f][hr[tag]] = str(m[tag])
+                    except:
+                        if tag=="TIT2": music[album][f]["title"] = audio
+                        if tag=="TPE1": music[album][f]["artist"] = "Unknown"
+                        if tag=="TALB": music[album][f]["album"] = album
+                        if tag=="TXXX:like": music[album][f]["like"] = "False"
 
-                    music[album][f]["path"]=audio
-                    music[album][f]["played"]=0
-                    f+=1
-            itm = QtGui.QListWidgetItem(album);
+                music[album][f]["path"]=audio
+                music[album][f]["played"]=0
+                f+=1
+            itm = QtWidgets.QListWidgetItem(album);
             itm.setIcon(QIcon(r""+path[0]+"/images/folder.png"));
             z+=1
             self.albumList.addItem(itm);
@@ -376,28 +389,15 @@ class mp3(QtGui.QMainWindow):
     #################################
     # Get contents of path          #
     #################################
-    def getFiles(self, directory, ftype):
-        file_paths = []  # List which will store all of the full filepaths.
-        # Walk the tree.
-        for root, directories, files in os.walk(directory):
-            if ftype=="dir":
-                for directory in directories:
-                    if not directory.startswith(".") and not directory.startswith("covers"):
-                        file_paths.append(directory)
-            else:
-                for filename in files:
-                    if not filename.startswith("."):
-                        # Join the two strings in order to form the full filepath.
-                        filepath = os.path.join(root, filename)
-                        file_paths.append(filepath)  # Add it to the list.
+    def getFileList(self, path, folder=""):
+        # remove hidden files (i.e. ".thumb")
+        path = os.path.join(path, folder)
+        raw_list = filter(lambda element: not element.startswith('.'), os.listdir(path))
+        if folder == "":
+            return raw_list
+
+        # mp3 and wav files only list
+        file_list = filter(lambda element: element.endswith('.mp3') | element.endswith('.m4a'), raw_list)       
+        return file_list
+
     
-        return file_paths  # Self-explanatory.
-    
-def main():
-    app = QtGui.QApplication(sys.argv)
-    form = mp3()
-    form.show()
-    sys.exit(app.exec_())
-    
-if __name__ == "__main__":
-    main()

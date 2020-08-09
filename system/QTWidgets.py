@@ -1,6 +1,7 @@
-from PyQt4.QtCore import Qt, QTimeLine, QRect
-from PyQt4 import QtCore
-from PyQt4.QtGui import *
+from PyQt5.QtCore import Qt, QTimeLine, QRect
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QPixmap, QPainter, QFontMetrics
 
 class FaderWidget(QWidget):
     

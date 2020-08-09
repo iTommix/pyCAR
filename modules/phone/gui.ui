@@ -752,8 +752,8 @@
     <widget class="QToolButton" name="btnCallReject">
      <property name="geometry">
       <rect>
-       <x>520</x>
-       <y>260</y>
+       <x>540</x>
+       <y>210</y>
        <width>100</width>
        <height>100</height>
       </rect>
@@ -921,8 +921,8 @@
     <widget class="QToolButton" name="btnCallAnswer">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>260</y>
+       <x>40</x>
+       <y>210</y>
        <width>100</width>
        <height>100</height>
       </rect>

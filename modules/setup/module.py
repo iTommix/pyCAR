@@ -1,9 +1,17 @@
+"""
 from PyQt4 import Qt, QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.uic import *
+"""
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import *
+from PyQt5 import QtWidgets, QtCore
+
 from types import *
 import os, netifaces as ni, psutil, time, alsaaudio, pulsectl, importlib, sys
+from glob import glob
 from subprocess import call
 from xml.dom import minidom
 from dbus.mainloop.glib import DBusGMainLoop
@@ -36,12 +44,12 @@ class tableModel(QtGui.QStandardItemModel):
         
     
 
-class setup(QtGui.QMainWindow):
+class setup(QtWidgets.QMainWindow):
     DOWN    = 1
     UP      = -1
     
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.selectedCard = None
         self.selectedProfile = 0
 
@@ -100,6 +108,7 @@ class setup(QtGui.QMainWindow):
         self.btnBTAuto.clicked.connect(lambda: self.setAuto())
         self.btnBTAuto.setEnabled(False)
         self.tblBTDevices.itemClicked.connect(self.btDeviceChanged)
+        self.btnEject.clicked.connect(self.eject)
 
         self.cardList.itemClicked.connect(self.setCard)
         self.profileList.itemSelectionChanged.connect(self.getPorts)
@@ -110,7 +119,8 @@ class setup(QtGui.QMainWindow):
             self.btnBTAuto.setStyleSheet("background-image: url(./images/bt_always_on.png);background-repeat: none; border: 0px;")
             #self.parent.schedule.every(2).seconds.do(self.connectMobile).tag('connectMobile')
             
-        
+        for path in glob("/media/pi/*/"):
+            self.mountList.addItem(path)
         
         
         self.btDevices={}
@@ -144,7 +154,7 @@ class setup(QtGui.QMainWindow):
             self.tableModel.appendRow([item, label, description])
         self.modules.setModel(self.tableModel)
         header = self.modules.horizontalHeader()
-        header.setResizeMode(2, QtGui.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         
         
     def moveCurrentRow(self, direction=DOWN):
@@ -231,8 +241,20 @@ class setup(QtGui.QMainWindow):
         ges = str(int(disk.total/1024/1024))
         use = str(int(disk.used/1024/1024))
         self.lblDisk2.setText(str(int(disk.percent)) + "% ("+use+" MB) von "+ges+" MB genutzt")
+        self.readMounts()
         
         
+    def eject(self):
+        if self.settings["usb"] != "":
+            call("sudo umount "+self.settings["usb"], shell=True)
+            self.readMounts()
+    
+    def readMounts(self):
+        self.mountList.clear()
+        for index, path in enumerate(glob("/media/pi/*/")):
+            self.mountList.addItem(path)
+            if path == self.settings["usb"]:
+                self.mountList.setCurrentIndex(index)
         
     def soundSettings(self):
         self.getSoundcards()
@@ -249,20 +271,23 @@ class setup(QtGui.QMainWindow):
         cards=self.parent.pa.getCards()
         for index, card in enumerate(cards):
             if card["props"].get("alsa.card_name"):
-                itm = QtGui.QListWidgetItem(card["props"]["alsa.card_name"])
+                itm = QtWidgets.QListWidgetItem(card["props"]["alsa.card_name"])
                 self.cardList.addItem(itm)
                 if card["props"]["alsa.card_name"] == self.parent.pa.settings["card"]:
                     self.cardList.setCurrentRow(index)
         
     def getProfiles(self):
         self.profileList.clear()
-        profiles = self.parent.pa.getProfiles(self.cardList.currentItem().text())
-        for index, profile in enumerate(profiles):
-            itm = QtGui.QListWidgetItem(profile.description)
-            self.profileList.addItem(itm)
-            if profile.description == self.parent.pa.settings["profile"]:
-                self.profileList.setCurrentRow(index)
-        self.getPorts()
+        try:
+            profiles = self.parent.pa.getProfiles(self.cardList.currentItem().text())
+            for index, profile in enumerate(profiles):
+                itm = QtWidgets.QListWidgetItem(profile.description)
+                self.profileList.addItem(itm)
+                if profile.description == self.parent.pa.settings["profile"]:
+                    self.profileList.setCurrentRow(index)
+            self.getPorts()
+        except:
+            pass
         
     def getPorts(self):
         ### SINKS ###
@@ -271,7 +296,7 @@ class setup(QtGui.QMainWindow):
         ports = self.parent.pa.getPorts(self.cardList.currentItem().text())
         if ports != None:    
             for index, port in enumerate(ports):
-                itm = QtGui.QListWidgetItem(port.description)
+                itm = QtWidgets.QListWidgetItem(port.description)
                 self.portList.addItem(itm)
                 if port.description == self.parent.pa.settings["port"]:
                     self.portList.setCurrentRow(index)
@@ -281,7 +306,7 @@ class setup(QtGui.QMainWindow):
         sources = self.parent.pa.getSource(self.cardList.currentItem().text())
         if sources != None:
             for source in sources:
-                itm = QtGui.QListWidgetItem(source.description)
+                itm = QtWidgets.QListWidgetItem(source.description)
                 self.sourceList.addItem(itm)
     
     def setPort(self, pType):

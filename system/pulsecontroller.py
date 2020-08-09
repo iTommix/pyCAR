@@ -1,14 +1,58 @@
-import smbus
+import smbus, dbus, dbus.mainloop.glib
 from pulsectl import *
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from subprocess import call
 from gi.repository import GLib
 
+
+call(["pulseaudio -D"], shell=True)
 pulse = Pulse('pyCAR')
+pulse.module_load("module-equalizer-sink")
+pulse.module_load("module-dbus-protocol")
 mute = ["on", "off"]
 maxVol=45
 
 
+class EventThread(QtCore.QThread):
+    def __init__(self, parent, eq, echo):
+        super(EventThread, self).__init__(parent)
+        self.eq = eq
+        self.echo = echo
+        bus = dbus.SessionBus()
+        server_lookup = bus.get_object("org.PulseAudio1", "/org/pulseaudio/server_lookup1")
+        address = server_lookup.Get("org.PulseAudio.ServerLookup1", "Address", dbus_interface="org.freedesktop.DBus.Properties")
+        self.pulse_bus = dbus.connection.Connection(address)
+        
+    def run(self):
+        pulse_core = self.pulse_bus.get_object(object_path='/org/pulseaudio/core1')
+        pulse_core.ListenForSignal('org.PulseAudio.Core1.NewPlaybackStream', dbus.Array(signature='o'), dbus_interface='org.PulseAudio.Core1')
+        self.pulse_bus.add_signal_receiver(self.callback, 'NewPlaybackStream')
+        loop = GLib.MainLoop()
+        loop.run()
+        
+    def callback(self, path):
+        props = dbus.Interface(self.pulse_bus.get_object(object_path=path), dbus_interface='org.freedesktop.DBus.Properties')
+        index = dbus.Int32(props.Get('org.PulseAudio.Core1.Stream', "Index"))
+        self.setSink(index)
+        
+    def setSink(self, index):
+        for sink in pulse.sink_input_list():
+            if sink.index == index:
+                if sink.proplist.get("media.role") and sink.proplist["media.role"] == "phone":
+                    pulse.sink_input_move(index, self.echo)
+                elif sink.proplist.get("media.role") and sink.proplist["media.role"] == "abstract":
+                    for source_output in pulse.source_output_list():
+                        if source_output.proplist.get("media.role") and source_output.proplist["media.role"] == "phone":
+                            source_output_id = source_output.index
+                    for source in pulse.source_list():
+                        if (source.proplist.get("device.class") and source.proplist["device.class"] == "filter") and (source.proplist.get("device.intended_roles") and source.proplist["device.intended_roles"] == "phone"):
+                            source_id = source.index
+                    pulse.source_output_move(source_output_id, source_id) 
+                    
+                else:
+                    pulse.sink_input_move(index, self.eq)
+        
+    
 class Pulsecontroller():
     
     def __init__(self, parent):
@@ -16,7 +60,9 @@ class Pulsecontroller():
         self.parent = parent
         self.cardID = None
         self.equalizerID = None
+        self.echoID = None
         self.microphoneID = None
+        
         i2c = smbus.SMBus(1)
         try:
             i2c.read_byte(0x4A)
@@ -43,6 +89,15 @@ class Pulsecontroller():
         self.setMicVolume(self.settings["microphone"])
         self.setMicActive(False)
         
+        if self.microphoneID != None:
+            pulse.module_load("module-echo-cancel", "aec_method=webrtc")
+        
+        event = EventThread(self.parent, self.equalizerID, self.echoID)
+        event.start()
+        
+        
+        
+        
 
         # Setup Volume for all streams and move to equalizer
         for module in self.parent.modules:
@@ -55,7 +110,9 @@ class Pulsecontroller():
                     except:
                         pass
                 self.setVolume(module)
-                        
+    
+    
+    
     def setVolume(self, module):
         volume = self.parent.modules[module]["instance"].settings["volume"]
         for sink in pulse.sink_input_list():
@@ -74,13 +131,13 @@ class Pulsecontroller():
                 self.microphoneID = source.index
     
     def setMicActive(self, status):
-        print(status)
-        pulse.mute(pulse.source_list()[self.microphoneID], not status)
+        if self.microphoneID != None:
+            pulse.mute(pulse.source_list()[self.microphoneID], not status)
             
             
     def mute(self):
         pulse.mute(pulse.sink_list()[self.cardID], not pulse.sink_list()[self.cardID].mute)
-        button=self.parent.findChild(QtGui.QToolButton, "btnMute")
+        button=self.parent.findChild(QtWidgets.QToolButton, "btnMute")
         button.setStyleSheet("background-image: url(./images/mute_"+str(mute[pulse.sink_list()[self.cardID].mute])+".png);background-repeat: none; border: 0px;")
             
     def setBalance(self, balance):
@@ -182,11 +239,20 @@ class Pulsecontroller():
     def setEqualizer(self):
         for sink in pulse.sink_list():
             if "FFT based equalizer" in sink.description:
-                self.equalizerID = sink.index
+                self.equalizerID = sink.index            
             if sink.proplist.get("alsa.card_name") and sink.proplist["alsa.card_name"] == self.settings["card"]:
                 self.cardID = sink.index
+            if "echo cancelled" in sink.description:
+                self.echoID = sink.index
         for sink in pulse.sink_input_list():
+            if sink.name == "Equalized Stream":
+                #pulse.sink_input_move(sink.index, self.cardID)
+                eqStream = sink.index
+            if sink.name == "Echo-Cancel Sink Stream":
+                #pulse.sink_input_move(eqStream, self.echoID)
+                pass
             if not sink.proplist.get("media.role") or (sink.proplist.get("media.role") and sink.proplist["media.role"] != "filter"):
                 pulse.sink_input_move(sink.index, self.equalizerID)
+
             
         

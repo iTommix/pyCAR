@@ -1,10 +1,10 @@
-from PyQt4 import QtGui
+from PyQt5 import QtWidgets, QtGui
 
 
-class example(QtGui.QMainWindow):
+class example(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
 
         
     ############### MANDATORY ! #################
@@ -44,7 +44,7 @@ class example(QtGui.QMainWindow):
         ########################################
         # Switch to another page               #
         ########################################
-        self.stack.setCurrentIndex(page)
+        self.parent.setPage(self.stack, page)
         ########################################
         # Display the status on the mainscreen #
         ########################################

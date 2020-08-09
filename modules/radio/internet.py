@@ -1,5 +1,6 @@
-from PyQt4 import QtCore, QtGui, uic
-from PyQt4.QtGui import QIcon, QImage, QPixmap
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5.QtGui import QIcon, QImage, QPixmap
+
 import mplayer, sys, os, json, time
 from xml.dom import minidom
 from urllib.request import Request, urlopen
@@ -9,15 +10,14 @@ form_class = uic.loadUiType(path[0]+"/"+path[1]+"/internet.ui")[0]
 
 player = mplayer.Player()
 
-class radio(QtGui.QMainWindow, form_class):
+class radio(QtWidgets.QMainWindow, form_class):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.stations={}
-        self.setupUi(self)    
+        QtWidgets.QWidget.__init__(self, parent)
+        self.setupUi(self)
+        self.stations={}        
         
-        
-    def loaded():
+    def loaded(self):
         self.stationList.itemClicked.connect(lambda: self.setChannel(self.stationList.currentRow()))
         self.readChannels()
         
@@ -56,7 +56,7 @@ class radio(QtGui.QMainWindow, form_class):
             self.stations[i]={}
             self.stations[i]["name"]=item.attributes["name"].value
             self.stations[i]["url"]=item.attributes["url"].value
-            itm = QtGui.QListWidgetItem(item.attributes["name"].value);
+            itm = QtWidgets.QListWidgetItem(item.attributes["name"].value);
             image=path[0]+'/'+path[1]+'/radio.png'
             if item.attributes["image"].value:
                 req = Request(item.attributes["image"].value, headers={'User-Agent': 'Mozilla/5.0'})

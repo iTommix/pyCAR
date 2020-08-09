@@ -1,9 +1,5 @@
----
-typora-root-url: ../pyCAR
----
-
 # pyCAR
-### A Car In-Dash with pure Python3, qt4, Pulseaudio, ofono on Raspberry Pi.
+### A Car In-Dash with pure Python3, qt5, Pulseaudio, ofono on Raspberry Pi.
 
 ![Splash-Screen](/install/splash.png)
 
@@ -35,11 +31,12 @@ I disabled the internal Bluetooth from Raspberry, because it wont work properly.
 ### Install:
 
 1. Write a fresh Raspios on a SD-Card (2020-05-27-raspios-buster-armhf.img or 2020-05-27-raspios-buster-lite-armhf.img)
-2. After first boot configure localizations and timezone with raspi-config. **On a headless (lite) system (without Desktop) select to boot into CLI with automatic login**. Reboot.
-3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>
+3. Clone this repository to your RPi <code>git clone https://github.com/iTommix/pyCAR.git</code>. On a headless system you have to install git first: `sudo apt install git`
 4. Change to the install folder <code>cd pyCAR/install</code>
 5. Execute the Install script <code>./install.sh</code>
 6. At first select 'Install Base-System'
+
+You will be asked to set the locale and timezone.
 
 The Scripts will uninstall not needed programs, update the System and install needed programs as well. You will need to reboot the RPi a couple of times.
 

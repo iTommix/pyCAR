@@ -18,8 +18,7 @@
 
 import os,math,sys
 try:
-    #from PyQt5 import QtWidgets,QtCore
-    from PyQt4 import QtGui as QtWidgets,QtCore
+    from PyQt5 import QtWidgets,QtCore
     from dbus.mainloop.glib import DBusGMainLoop
     import dbus
 

@@ -6,7 +6,8 @@ from subprocess import call, check_output
 from random import randint
 import locale
 import sqlite3
-from PyQt4 import QtGui
+#from PyQt4 import QtGui
+from PyQt5.QtWidgets import QApplication
 
 class mobile():
     
@@ -151,7 +152,7 @@ class mobile():
             c.setpath(prefix + "telecom/pb")
             uid=1
             self.parent.showMessage("Telefonbuch", "Lade "+str(len(names))+" Rufnummern von "+deviceName, progress=len(names))
-            QtGui.QApplication.processEvents()
+            QApplication.processEvents()
             for name in names:
                 hdrs, card = c.get(name, header_list=[headers.Type(b"x-bt/vcard")])
                 #print(card)
@@ -160,7 +161,7 @@ class mobile():
                 if len(parsed["phone"])>0:
                     for value in parsed["phone"]:
                         self.parent.dialogProgress.setValue(uid)
-                        QtGui.QApplication.processEvents()
+                        QApplication.processEvents()
                         try:
                             number=parsed["phone"][value]["number"]
                             cursor.execute("INSERT INTO numbers VALUES ('" + str(uid) +"', '"+ number +"', '"+ parsed["phone"][value]["type"] +"')")

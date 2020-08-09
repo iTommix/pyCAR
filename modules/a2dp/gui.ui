@@ -13,6 +13,12 @@
   <property name="windowTitle">
    <string>a2dp</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">.QSlider::handle:horizontal {
+    background: transparent;
+}
+</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="page1" native="true">
     <property name="geometry">
@@ -522,7 +528,9 @@
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border-width: 0px; background: transparent;</string>
+      <string notr="true">border-width: 0px; 
+background: transparent;
+</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

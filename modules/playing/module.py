@@ -1,12 +1,11 @@
-from PyQt4 import QtGui, uic
+#from PyQt4 import QtGui, uic
+from PyQt5 import QtWidgets
 import os, time
-path=os.path.dirname(os.path.abspath( __file__ ))
-form_class = uic.loadUiType(path+"/gui.ui")[0]
 
-class playing(QtGui.QMainWindow, form_class):
+class playing(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         
     def loaded(self):
         pass

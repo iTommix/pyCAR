@@ -1,16 +1,15 @@
-from PyQt4 import QtCore, QtGui, uic
-from PyQt4.QtGui import QIcon
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtGui import QIcon
 import sys, os, json, time, dbus, sqlite3
 
 
 
 path=os.path.dirname(os.path.abspath( __file__ )).rsplit('/', 1)
-form_class = uic.loadUiType(path[0]+"/"+path[1]+"/gui.ui")[0]
 
-class phone(QtGui.QMainWindow, form_class):
+class phone(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None, settings=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
        
         self.call=0
         self.callPath=None
@@ -21,10 +20,13 @@ class phone(QtGui.QMainWindow, form_class):
     def loaded(self):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(lambda: self.detectIncomingCall())
-        self.timer.start(1000)
+        self.timer.start(500)
         
         self.phonebookList.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
         self.tblPhoneNumbers.verticalScrollBar().setStyleSheet("QScrollBar:vertical {width:50px}");
+        
+        self.phonebookList.setVerticalScrollMode(self.phonebookList.ScrollPerPixel)
+        QtWidgets.QScroller.grabGesture(self.phonebookList.viewport(), QtWidgets.QScroller.LeftMouseButtonGesture)
         
         for number in range(0,10):
             button = getattr(self, "btnPhone"+str(number))
@@ -75,9 +77,9 @@ class phone(QtGui.QMainWindow, form_class):
             self.btnPhonebook.setVisible(False)
             self.btnDelete.setVisible(False)
             self.btnCallNumber.setIcon(QIcon("./images/callend.png"));
-            self.btnCallNumber.setGeometry(QtCore.QRect(300, 200, 100, 100))           
+            self.btnCallNumber.setGeometry(QtCore.QRect(300, 210, 100, 100))           
         else:
-            self.btnCallNumber.setGeometry(QtCore.QRect(50, 200, 100, 100))
+            self.btnCallNumber.setGeometry(QtCore.QRect(40, 210, 100, 100))
             for number in range(0,10):
                 button = getattr(self, "btnPhone"+str(number))
                 button.setVisible(True)
@@ -86,6 +88,8 @@ class phone(QtGui.QMainWindow, form_class):
             self.btnPhonebook.setVisible(True)
             self.btnDelete.setVisible(True)
             
+            self.btnCallAnswer.setVisible(True)
+            self.btnCallReject.setGeometry(QtCore.QRect(540, 210, 100, 100))
             
                 
     def makePhoneCall(self):
@@ -130,6 +134,9 @@ class phone(QtGui.QMainWindow, form_class):
         call = dbus.Interface(bus.get_object('org.ofono', self.path),'org.ofono.VoiceCall')
         if mode=='answer':
             call.Answer()
+            self.btnCallAnswer.setVisible(False)
+            self.btnCallReject.setGeometry(QtCore.QRect(300, 210, 100, 100))
+            self.btnCallAnswer
             self.call=1
         else:
             call.Hangup()
@@ -171,11 +178,10 @@ class phone(QtGui.QMainWindow, form_class):
                             ntype=""
                         self.lblPhoneIncomingNumber.setText(number)
                         self.lblPhoneIncomingType.setText(ntype)
-                        #self.frame.setGeometry(QtCore.QRect(-2100, 0, 2800, 480))
                         self.parent.setPage(self.stack, 3)
                         self.parent.mainFrame.setCurrentIndex(self.parent.modules["phone"]["deck"])
                         self.parent.active="phone"
-                        self.parent.volume.setVolume(self.settings["volume"])
+                        self.parent.pa.setVolume("phone")
    
             if callState=="" and self.call==1:
                 self.parent.setPage(self.stack, 0)
@@ -195,7 +201,7 @@ class phone(QtGui.QMainWindow, form_class):
                             name=row[1]+", "+row[2]
                         else:
                             name=row[2]
-                        itm = QtGui.QListWidgetItem(name);
+                        itm = QtWidgets.QListWidgetItem(name);
                         itm.setWhatsThis(row[0])
                         self.phonebookList.addItem(itm)
                     self.phoneBookLoaded=True
@@ -222,9 +228,9 @@ class phone(QtGui.QMainWindow, form_class):
         rows = cursor.fetchone()
         self.tblPhoneNumbers.setRowCount(rows[0])
         for row in cursor.execute("SELECT type, number FROM numbers WHERE uid='"+uid+"' AND number LIKE '+%' ORDER BY type"):
-            newitem = QtGui.QTableWidgetItem(row[0])
+            newitem = QtWidgets.QTableWidgetItem(row[0])
             self.tblPhoneNumbers.setItem(c,0,newitem)
-            newitem = QtGui.QTableWidgetItem(row[1])
+            newitem = QtWidgets.QTableWidgetItem(row[1])
             self.tblPhoneNumbers.setItem(c,1,newitem)
             c+=1
         #self.tblPhoneNumbers.resizeColumnsToContents()
