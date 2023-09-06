@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+    <items>
+        <item name="HIT RADIO FFH" url="https://mp3.ffh.de/radioffh/hqlivestream.mp3" image="https://static.ffh.de/fileadmin/templates/ffh.de/images/logo.png"></item>
+        <item name="HIT RADIO FFH 80er" url="https://mp3.ffh.de/ffhplus/hq80er.mp3" image="https://static.ffh.de/fileadmin/templates/ffh.de/images/logo.png"></item>
+        <item name="KISS FM" url="https://stream.kissfm.de/kissfm/mp3-128/playlist" image=""></item>
+        <item name="nrj Hamburg" url="https://edge59.streamonkey.net/energy-hamburg?aggregator=shorty" image=""></item>
+        <item name="ffn" url="player.ffn.de/radioffn.mp3" image="https://www.ffn.de/fileadmin/ffn.de/musik/streams/ffn.png"></item>
+    </items>
