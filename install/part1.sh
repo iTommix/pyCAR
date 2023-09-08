@@ -24,8 +24,8 @@ TERM=ansi whiptail --title "Info" --infobox "Download Kernel headers and update 
 sudo apt-get -y autoremove
 source /etc/os-release
 sudo sh -c "echo 'deb-src http://archive.raspbian.org/raspbian/ $VERSION_CODENAME main contrib non-free rpi' >> /etc/apt/sources.list"
+sudo apt update --allow-releaseinfo-change
 sudo apt-get -y install raspberrypi-kernel-headers #raspberrypi-kernel
-sudo apt-get update
 if (whiptail --title "Touchscreen" --yesno "Should the Touchscreen rotated upside down?" 8 78); then
     sudo sh -c "echo 'lcd_rotate=2' >> /boot/config.txt"
 fi
